@@ -1,0 +1,2557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>MFU Dorm Connect — Admin System</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --navy:#0f1b2d;--navy2:#172235;--navy3:#1e3050;--navyb:#2a4060;
+  --blue:#3b82f6;--blueg:rgba(59,130,246,.15);--cyan:#06b6d4;
+  --green:#10b981;--yellow:#f59e0b;--red:#ef4444;--orange:#f97316;
+  --g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;--g300:#cbd5e1;
+  --g400:#94a3b8;--g600:#475569;--g800:#1e293b;
+  --fh:'Syne',sans-serif;--fb:'IBM Plex Sans Thai',sans-serif;--fm:'IBM Plex Mono',monospace;
+  --sw:0px;--hh:60px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--fb);background:var(--g50);color:var(--g800);min-height:100vh;overflow-x:hidden}
+
+/* LOGIN */
+#loginWrap{min-height:100vh;background:var(--navy);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+#loginWrap::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 70% 50%,rgba(59,130,246,.14) 0%,transparent 70%),radial-gradient(ellipse 40% 60% at 10% 80%,rgba(6,182,212,.09) 0%,transparent 70%)}
+.lgrid{display:grid;grid-template-columns:1fr 420px;max-width:900px;width:100%;padding:24px;position:relative;z-index:1}
+.lbrand{display:flex;flex-direction:column;justify-content:center;padding:40px 40px 40px 0}
+.lbadge{display:inline-flex;align-items:center;background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3);color:var(--cyan);border-radius:100px;padding:4px 14px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:24px;width:fit-content}
+.lbrand h1{font-family:var(--fh);font-size:42px;font-weight:800;line-height:1.1;color:#fff;margin-bottom:16px}
+.lbrand h1 span{color:var(--blue)}
+.lbrand p{color:var(--g400);font-size:15px;line-height:1.7}
+.lcard{background:var(--navy2);border:1px solid var(--navyb);border-radius:20px;padding:40px}
+.lcard h2{font-family:var(--fh);font-size:22px;font-weight:700;color:#fff;margin-bottom:6px}
+.lcard .sub{color:var(--g400);font-size:13px;margin-bottom:28px}
+.lfield{margin-bottom:16px}
+.lfield label{display:block;font-size:11px;font-weight:700;color:var(--g400);letter-spacing:.07em;text-transform:uppercase;margin-bottom:7px}
+.lfield input{width:100%;padding:12px 16px;background:var(--navy3);border:1px solid var(--navyb);border-radius:10px;color:#fff;font-family:var(--fb);font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s}
+.lfield input:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blueg)}
+.lfield input::placeholder{color:var(--g600)}
+.lerr{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5;border-radius:10px;padding:11px 15px;font-size:13px;margin-bottom:14px;display:none}
+.lerr.show{display:block}
+.lbtn{width:100%;padding:13px;background:var(--blue);color:#fff;font-family:var(--fh);font-size:15px;font-weight:700;border:none;border-radius:10px;cursor:pointer;transition:background .2s}
+.lbtn:hover{background:#2563eb}
+.lhint{font-size:11px;color:var(--g600);text-align:center;margin-top:14px}
+.ferr{font-size:12px;color:var(--red);margin-top:4px;display:none}
+.ferr.show{display:block}
+
+/* APP */
+#appWrap{display:none;min-height:100vh}
+header{height:var(--hh);background:#fff;border-bottom:1px solid var(--g200);display:flex;align-items:center;padding:0 20px 0 24px;position:fixed;top:0;left:0;right:0;z-index:100}
+.hlogo{display:flex;align-items:center;gap:11px;width:var(--sw);flex-shrink:0}
+.hlogomk{width:32px;height:32px;background:var(--navy);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.hlogotext{font-family:var(--fh);font-size:16px;font-weight:800;color:var(--navy)}.hlogotext span{color:var(--blue)}
+.hright{display:flex;align-items:center;gap:12px;margin-left:auto}
+.ltoggle{display:flex;background:var(--g100);border-radius:8px;padding:3px;gap:2px}
+.ltbtn{padding:4px 12px;border-radius:6px;border:none;background:transparent;font-size:12px;font-weight:600;cursor:pointer;color:var(--g600);transition:all .15s}
+.ltbtn.on{background:#fff;color:var(--navy);box-shadow:0 1px 3px rgba(0,0,0,.09)}
+.hnotif{width:36px;height:36px;border:none;background:var(--g100);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;color:var(--g600);transition:background .15s}.hnotif:hover{background:var(--g200)}
+.hndot{position:absolute;top:6px;right:6px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid #fff;display:none}
+.havatar{width:36px;height:36px;background:var(--navy);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:var(--fh);font-size:14px;font-weight:700;cursor:pointer;overflow:hidden;flex-shrink:0}
+.havatar img{width:100%;height:100%;object-fit:cover}
+
+aside{width:260px;background:var(--navy);position:fixed;top:var(--hh);left:0;bottom:0;overflow-y:auto;z-index:300;display:flex;flex-direction:column;transform:translateX(-100%);transition:transform .25s cubic-bezier(.4,0,.2,1);box-shadow:4px 0 24px rgba(0,0,0,.18)}
+aside.open{transform:translateX(0)}
+.aside-sec{padding:14px 10px 6px}
+.aside-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.28);padding:0 8px;margin-bottom:3px}
+.nitem{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:10px;color:rgba(255,255,255,.58);font-size:13.5px;font-weight:500;cursor:pointer;transition:all .15s;margin-bottom:2px;user-select:none}
+.nitem:hover{background:rgba(255,255,255,.07);color:#fff}
+.nitem.on{background:var(--blue);color:#fff}
+.nitem .em{width:18px;flex-shrink:0;font-size:15px}
+.nbadge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px;min-width:20px;text-align:center}
+.aside-foot{margin-top:auto;padding:12px 10px;border-top:1px solid var(--navyb)}
+
+main{margin-left:0;margin-top:var(--hh);padding:26px}
+.pg{display:none}.pg.on{display:block}
+.pghead{margin-bottom:22px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.pghead-t h2{font-family:var(--fh);font-size:26px;font-weight:800;color:var(--navy)}
+.pghead-t p{color:var(--g600);font-size:13.5px;margin-top:3px}
+
+/* STATS */
+.statgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px}
+.statcard{background:#fff;border-radius:14px;padding:20px;border:1px solid var(--g200);display:flex;flex-direction:column;gap:14px}
+.statcard .num{font-family:'DM Sans',var(--fb);font-size:32px;font-weight:600;color:var(--navy);line-height:1;letter-spacing:-.5px}
+.statcard .lbl{font-size:11px;color:var(--g500,#64748b);font-weight:500;text-transform:uppercase;letter-spacing:.08em;margin-top:1px}
+.statcard .tr{font-size:11px;font-weight:600}
+
+/* CARD */
+.card{background:#fff;border-radius:14px;border:1px solid var(--g200);overflow:hidden;margin-bottom:20px}.card-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--g200);gap:10px;flex-wrap:wrap}
+.card-head h3{font-family:var(--fh);font-size:15px;font-weight:700;color:var(--navy)}
+.card-body{padding:20px}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse}
+th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--g400);background:var(--g50);border-bottom:1px solid var(--g200);white-space:nowrap}
+td{padding:12px 14px;font-size:13.5px;color:var(--g800);border-bottom:1px solid var(--g100);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--g50)}
+
+/* BADGE */
+.bdg{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:100px;font-size:11.5px;font-weight:600;white-space:nowrap}
+.bdg::before{content:'';width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.bpend{background:#fef3c7;color:#92400e}.bpend::before{background:#f59e0b}
+.bprog{background:#dbeafe;color:#1e40af}.bprog::before{background:#3b82f6}
+.bcomp{background:#d1fae5;color:#065f46}.bcomp::before{background:#10b981}
+.binfo{background:#e0f2fe;color:#0369a1}.binfo::before{background:#06b6d4}
+.bwarn{background:#fef3c7;color:#92400e}.bwarn::before{background:#f59e0b}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:9px;font-family:var(--fb);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.bp{background:var(--blue);color:#fff}.bp:hover:not(:disabled){background:#2563eb}
+.bg{background:var(--green);color:#fff}.bg:hover:not(:disabled){background:#059669}
+.bo{background:transparent;color:var(--navy);border:1.5px solid var(--g200)}.bo:hover:not(:disabled){background:var(--g100)}
+.br{background:var(--red);color:#fff}.br:hover:not(:disabled){background:#dc2626}
+.by{background:var(--yellow);color:#fff}.by:hover:not(:disabled){background:#d97706}
+.btn-sm{padding:5px 11px;font-size:12px}
+.btn-xs{padding:3px 8px;font-size:11px}
+
+/* FORM */
+.fcard{background:#fff;border-radius:14px;border:1px solid var(--g200);padding:24px;margin-bottom:20px}
+.fcard h3{font-family:var(--fh);font-size:16px;font-weight:700;color:var(--navy);margin-bottom:18px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px}
+.fc{width:100%;padding:9px 13px;background:var(--g50);border:1.5px solid var(--g200);border-radius:9px;font-family:var(--fb);font-size:13.5px;color:var(--g800);outline:none;transition:border-color .2s}
+.fc:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(59,130,246,.08)}
+textarea.fc{resize:vertical;min-height:82px}
+select.fc{cursor:pointer}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+
+/* MODAL */
+.mbk{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;display:none;align-items:center;justify-content:center;padding:20px}
+.mbk.open{display:flex}
+.mdl{background:#fff;border-radius:16px;padding:28px;max-width:520px;width:100%;position:relative;max-height:88vh;overflow-y:auto}
+.mdl h3{font-family:var(--fh);font-size:19px;font-weight:800;color:var(--navy);margin-bottom:18px}
+.mclose{position:absolute;top:16px;right:16px;width:30px;height:30px;background:var(--g100);border:none;border-radius:8px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;line-height:1}
+.mfoot{display:flex;gap:9px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--g100)}
+
+/* CONFIRM */
+.cfbk{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:center;justify-content:center}
+.cfbk.open{display:flex}
+.cfbox{background:#fff;border-radius:16px;padding:28px;max-width:340px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.cfbox h4{font-family:var(--fh);font-size:17px;font-weight:700;color:var(--navy);margin-bottom:8px}
+.cfbox p{font-size:13.5px;color:var(--g600);margin-bottom:18px;line-height:1.5}
+.cfbtns{display:flex;gap:9px;justify-content:center}
+
+/* TOAST */
+.toastwrap{position:fixed;bottom:22px;right:22px;z-index:999;display:flex;flex-direction:column;gap:9px;pointer-events:none}
+.toast{background:var(--navy);color:#fff;padding:13px 17px;border-radius:11px;font-size:13px;display:flex;align-items:center;gap:9px;box-shadow:0 8px 28px rgba(0,0,0,.2);min-width:250px;max-width:340px;border-left:4px solid var(--blue);animation:tin .3s ease;pointer-events:all}
+.toast.ok{border-left-color:var(--green)}.toast.warn{border-left-color:var(--yellow)}.toast.err{border-left-color:var(--red)}
+@keyframes tin{from{transform:translateX(108%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes tout{from{transform:translateX(0);opacity:1}to{transform:translateX(108%);opacity:0}}
+
+/* NOTIF PANEL */
+.nwrap{position:relative}
+.npanel{position:absolute;top:calc(100%+8px);right:0;background:#fff;border:1px solid var(--g200);border-radius:13px;width:310px;box-shadow:0 8px 28px rgba(0,0,0,.12);z-index:200;display:none}
+.npanel.open{display:block}
+.nph{padding:14px 18px;border-bottom:1px solid var(--g100);display:flex;align-items:center;justify-content:space-between}
+.nph h4{font-family:var(--fh);font-size:14px;font-weight:700;color:var(--navy)}
+.nitem2{padding:11px 18px;border-bottom:1px solid var(--g100);display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.nitem2:last-child{border-bottom:none}
+.nitem2:hover{background:var(--g50)}
+.nitxt{font-size:13px;color:var(--g800);line-height:1.4}
+.nitime{font-size:11px;color:var(--g400);margin-top:2px}
+
+/* SCAN */
+.scanlayout{display:grid;grid-template-columns:1fr 360px;gap:20px}
+.scansteps{display:flex;flex-direction:column;gap:14px}
+.stepcard{background:#fff;border-radius:14px;border:1px solid var(--g200);padding:20px}
+.stepnum{width:26px;height:26px;background:var(--blue);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:700;font-size:12px;margin-bottom:12px}
+.stepcard h4{font-family:var(--fh);font-size:14px;font-weight:700;color:var(--navy);margin-bottom:11px}
+.camwrap{position:relative;width:100%;background:#0a0f1a;border-radius:12px;overflow:hidden;margin-bottom:10px}
+#camvid{width:100%;height:190px;object-fit:cover;display:block}
+.camov{position:absolute;inset:0;pointer-events:none}
+.scanreg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:210px;height:105px;border:2px solid var(--blue);border-radius:6px;box-shadow:0 0 0 9999px rgba(0,0,0,.42)}
+.scanline{position:absolute;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,var(--blue),transparent);animation:sl 2s ease-in-out infinite}
+@keyframes sl{0%,100%{top:8%}50%{top:88%}}
+.corn{position:absolute;width:16px;height:16px;border-color:var(--blue);border-style:solid}
+.ctla{top:0;left:0;border-width:3px 0 0 3px}.ctra{top:0;right:0;border-width:3px 3px 0 0}
+.cbla{bottom:0;left:0;border-width:0 0 3px 3px}.cbra{bottom:0;right:0;border-width:0 3px 3px 0}
+.camstat{position:absolute;bottom:0;left:0;right:0;text-align:center;font-size:11px;color:rgba(255,255,255,.85);background:rgba(0,0,0,.46);padding:5px}
+#camph{width:100%;height:190px;background:#1a2035;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--g400);font-size:13px;margin-bottom:10px;text-align:center;padding:14px;cursor:pointer;border:2px dashed var(--navyb);transition:border-color .2s}
+#camph:hover{border-color:var(--blue)}
+.camtabs{display:flex;background:var(--g100);border-radius:9px;padding:3px;gap:3px;margin-bottom:12px}
+.ctab{flex:1;padding:6px 4px;border:none;background:transparent;border-radius:7px;font-family:var(--fb);font-size:12px;font-weight:600;cursor:pointer;color:var(--g600);transition:all .15s;white-space:nowrap}
+.ctab.on{background:#fff;color:var(--navy);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+#dropzone{width:100%;border:2px dashed var(--g300);border-radius:11px;padding:28px 16px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:10px}
+#dropzone:hover,#dropzone.drag{border-color:var(--blue);background:var(--blueg)}
+#dropzone .dico{font-size:30px;margin-bottom:8px}
+#dropzone p{font-size:12.5px;color:var(--g600)}
+.imgprev{width:100%;border-radius:10px;max-height:180px;object-fit:contain;background:#111;margin-bottom:10px;display:none}
+.prevcard{background:#fff;border-radius:14px;border:2px solid var(--blue);padding:22px;margin-bottom:16px}
+.prevcard h3{font-family:var(--fh);font-size:15px;font-weight:700;color:var(--navy);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.prevav{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--cyan));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:20px;font-weight:800;color:#fff;margin:0 auto 14px}
+.prevrow{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--g100);font-size:13px}
+.prevrow:last-of-type{border-bottom:none}
+.prevrow .pk{color:var(--g600);font-weight:500}
+.prevrow .pv{font-weight:700;color:var(--navy);font-family:var(--fm);font-size:12px;text-align:right}
+.emptybox{background:#fff;border-radius:14px;border:2px dashed var(--g200);padding:44px 20px;text-align:center;color:var(--g400);margin-bottom:16px}
+.emptybox .eico{font-size:32px;margin-bottom:9px}
+.emptybox p{font-size:13px}
+
+/* ANNOUNCE */
+.anncard{background:#fff;border-radius:13px;border:1px solid var(--g200);padding:16px;margin-bottom:11px;display:flex;gap:13px;transition:box-shadow .2s}
+.anncard:hover{box-shadow:0 4px 14px rgba(0,0,0,.06)}
+.anndot{width:9px;height:9px;border-radius:50%;background:var(--blue);margin-top:5px;flex-shrink:0}
+.annbody{flex:1;min-width:0}
+.anntitle{font-family:var(--fh);font-size:14px;font-weight:700;color:var(--navy);margin-bottom:2px}
+.annmeta{font-size:11.5px;color:var(--g400);margin-bottom:6px}
+.anndesc{font-size:13px;color:var(--g600);line-height:1.5}
+.annact{display:flex;gap:7px;margin-top:9px}
+
+/* AUDIT */
+.aurow{display:flex;align-items:flex-start;gap:12px;padding:12px 18px;border-bottom:1px solid var(--g100)}
+.aurow:last-child{border-bottom:none}
+.auico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;color:var(--g600)}
+.aubody{flex:1;min-width:0}
+.auact{font-weight:600;font-size:13px;color:var(--navy)}
+.audtl{font-size:12px;color:var(--g600);margin-top:2px}
+.autime{font-size:11px;color:var(--g400);font-family:var(--fm);white-space:nowrap;flex-shrink:0}
+
+/* UTILS */
+.dv{height:1px;background:var(--g200);margin:14px 0}
+.flex{display:flex}.aic{align-items:center}.gap2{gap:8px}.gap3{gap:12px}
+.mt3{margin-top:12px}.mt4{margin-top:16px}.mb4{margin-bottom:16px}.mla{margin-left:auto}.wf{width:100%}
+.tsm{font-size:12px;color:var(--g600)}
+.phthumb{width:42px;height:42px;border-radius:8px;object-fit:cover;cursor:pointer;border:1.5px solid var(--g200);transition:transform .15s}
+.phthumb:hover{transform:scale(1.1)}
+.stsel{padding:6px 9px;border-radius:8px;border:1.5px solid var(--g200);font-family:var(--fb);font-size:12.5px;background:#fff;cursor:pointer;outline:none}
+.stsel:focus{border-color:var(--blue)}
+.srch{padding:8px 13px;border:1.5px solid var(--g200);border-radius:9px;font-family:var(--fb);font-size:13px;outline:none;background:var(--g50);width:210px}
+.srch:focus{border-color:var(--blue);background:#fff}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.paw{position:relative;width:84px;height:84px;cursor:pointer}
+.pabig{width:84px;height:84px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--blue));display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:30px;font-weight:800;color:#fff;overflow:hidden}
+.pabig img{width:100%;height:100%;object-fit:cover}
+.paedit{position:absolute;bottom:0;right:0;width:24px;height:24px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
+.chartbar{flex:1;border-radius:4px 4px 0 0;transition:opacity .2s;cursor:pointer;min-width:0}
+.chartbar:hover{opacity:1!important}
+.ai-tab-badge{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;letter-spacing:.05em;text-transform:uppercase}
+.ai-field-row{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:10px;border:1.5px solid var(--g200);background:var(--g50);margin-bottom:8px;transition:border-color .2s}
+.ai-field-row.filled{border-color:#10b981;background:#f0fdf4}
+.ai-field-row.filled .ai-field-ico{color:#10b981}
+.ai-field-ico{font-size:15px;flex-shrink:0;width:20px;text-align:center}
+.ai-field-label{font-size:11px;font-weight:600;color:var(--g400);text-transform:uppercase;letter-spacing:.06em;flex-shrink:0;width:70px}
+.ai-field-val{font-family:var(--fm);font-size:13px;font-weight:700;color:var(--navy);flex:1;word-break:break-all}
+.ai-field-val.empty{font-family:var(--fb);font-weight:400;color:var(--g400);font-style:italic;font-size:12px}
+.ai-confidence{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;padding:2px 7px;border-radius:99px;flex-shrink:0}
+.ai-conf-high{background:#d1fae5;color:#065f46}
+.ai-conf-med{background:#fef3c7;color:#92400e}
+.ai-conf-low{background:#fee2e2;color:#991b1b}
+.ai-thinking{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:32px 16px;text-align:center;display:none}
+.ai-pulse{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:22px;animation:aip 1.2s ease-in-out infinite}
+@keyframes aip{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.15);opacity:.8}}
+.ocr-result{background:var(--g50);border:1.5px solid var(--g200);border-radius:9px;padding:10px 13px;font-family:var(--fm);font-size:12px;color:var(--g800);max-height:90px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;margin-bottom:9px;display:none}
+.ocr-bar{height:5px;background:var(--g200);border-radius:99px;overflow:hidden;margin-bottom:8px;display:none}
+.ocr-bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:99px;width:0%;transition:width .2s}
+.ocr-hint{font-size:11px;color:var(--g400);margin-bottom:8px;display:none}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:299}.sidebar-overlay.open{display:block}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--g300);border-radius:3px}
+
+/* ── SVG Icons ──────────────────────────────────── */
+.ico-svg{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.ico-svg svg{display:block}
+.nav-ico svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.stat-ico-wrap{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.stat-ico-wrap svg{width:20px;height:20px;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;fill:none}
+/* ── RESPONSIVE ─────────────────────────────────── */
+@media(max-width:1200px){
+  .statgrid{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:980px){
+  .scanlayout,.g2{grid-template-columns:1fr}
+  .lgrid{grid-template-columns:1fr}
+  .lbrand{display:none}
+}
+
+/* Tablet: hide sidebar, show hamburger */
+@media(max-width:768px){
+  :root{--sw:0px}
+  aside{transform:translateX(-100%);transition:transform .25s ease;width:260px;--sw:260px;z-index:300;box-shadow:4px 0 24px rgba(0,0,0,.3)}
+  aside.open{transform:translateX(0)}
+  main{margin-left:0!important}
+  .hlogo{width:auto}
+  header{padding:0 14px}
+  .statgrid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .pghead{flex-direction:column;align-items:flex-start;gap:8px}
+  .pghead .flex{flex-wrap:wrap}
+  .frow{grid-template-columns:1fr!important}
+  main{padding:16px}
+  .srch{width:100%}
+  .card-head{flex-wrap:wrap;gap:8px}
+  /* Make tables scrollable */
+  .card-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:520px}
+  /* Scan layout */
+  .scanlayout{grid-template-columns:1fr}
+  /* Ann page */
+  .g2{grid-template-columns:1fr}
+  /* Login */
+  .lcard{padding:28px 20px}
+  .lgrid{padding:16px}
+}
+
+/* Mobile: tighter */
+@media(max-width:480px){
+  .statgrid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .statcard{padding:14px}
+  .statcard .num{font-size:22px}
+  main{padding:12px}
+  .hright{gap:8px}
+  .ltbtn{padding:3px 8px;font-size:11px}
+  .havatar{width:30px;height:30px;font-size:12px}
+  .hnotif{width:30px;height:30px}
+  .pghead-t h2{font-size:20px}
+  .btn{padding:6px 12px;font-size:12px}
+  .btn-sm{padding:4px 9px;font-size:11px}
+  .npanel{width:280px;right:-10px}
+  .statgrid{grid-template-columns:1fr 1fr}
+  .lbrand h1{font-size:32px}
+}
+</style>
+<!-- Tesseract OCR -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</head>
+<body>
+
+<!-- ═══ LOGIN ═══ -->
+<div id="loginWrap">
+  <div class="lgrid">
+    <div class="lbrand">
+      <div class="lbadge">🏢 Mae Fah Luang University</div>
+      <h1>MFU Dorm<br><span>Connect</span><br>Admin</h1>
+      <p>ระบบบริหารจัดการหอพักแบบครบวงจร<br>สำหรับเจ้าหน้าที่ประจำหอพัก MFU</p>
+    </div>
+    <div class="lcard">
+      <h2>Admin Sign In</h2>
+      <div class="sub">ลงชื่อเข้าใช้เพื่อจัดการระบบหอพัก</div>
+      <div class="lerr" id="lErr"></div>
+      <div class="lfield">
+        <label>Email</label>
+        <input type="email" id="lEmail" placeholder="admin@mfu.ac.th" autocomplete="username"/>
+        <div class="ferr" id="eEmail"></div>
+      </div>
+      <div class="lfield">
+        <label>Password</label>
+        <input type="password" id="lPw" placeholder="••••••••" autocomplete="current-password"/>
+        <div class="ferr" id="ePw"></div>
+      </div>
+      <button class="lbtn" id="btnLogin">Sign In →</button>
+      <div class="lhint">Demo: admin@mfu.ac.th / Admin123</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ APP ═══ -->
+<div id="appWrap">
+  <header>
+    <button class="hburger" id="hburger" onclick="toggleSidebar()" style="width:36px;height:36px;background:var(--g100);border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;margin-right:8px">☰</button>
+    <div class="hlogo">
+      <div class="hlogomk">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" fill="#3b82f6"/>
+          <path d="M9 22V12h6v10" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="hlogotext">MFU<span>Dorm</span></span>
+    </div>
+    <div class="hright">
+      <div class="ltoggle">
+        <button class="ltbtn on" id="bEN" onclick="setLang('en')">EN</button>
+        <button class="ltbtn" id="bTH" onclick="setLang('th')">TH</button>
+      </div>
+      <div class="nwrap">
+        <button class="hnotif" onclick="toggleNP()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span class="hndot" id="ndot"></span></button>
+        <div class="npanel" id="npanel">
+          <div class="nph"><h4>Notifications</h4><button class="btn btn-xs bo" data-i18n="btn.clear_all" onclick="clearNotifs()">Clear all</button></div>
+          <div id="nlist"></div>
+        </div>
+      </div>
+      <div class="havatar" id="havt" onclick="navTo('settings')">A</div>
+    </div>
+  </header>
+
+  <aside>
+    <div class="aside-sec">
+      <div class="aside-lbl">MAIN</div>
+      <div class="nitem on" id="n-overview" onclick="navTo('overview')"><span class="em nav-ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span><span>Dashboard</span></div>
+      <div class="nitem" id="n-scan" onclick="navTo('scan')"><span class="em nav-ico"><svg viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M12 3v18M3 8l9 5 9-5"/></svg></span><span>Scan Parcel</span><span class="nbadge" id="b-scan"></span></div>
+      <div class="nitem" id="n-repairs" onclick="navTo('repairs')"><span class="em nav-ico"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg></span><span>Repairs</span><span class="nbadge" id="b-repair"></span></div>
+      <div class="nitem" id="n-announce" onclick="navTo('announce')"><span class="em nav-ico"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></span><span>Announcements</span></div>
+    </div>
+    <div class="aside-sec">
+      <div class="aside-lbl">SYSTEM</div>
+      <div class="nitem" id="n-students" onclick="navTo('students')"><span class="em nav-ico"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span><span>Students</span></div>
+      <div class="nitem" id="n-audit" onclick="navTo('audit')"><span class="em nav-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg></span><span>Audit Log</span></div>
+      <div class="nitem" id="n-settings" onclick="navTo('settings')"><span class="em nav-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span><span>Settings</span></div>
+    </div>
+    <div class="aside-foot">
+      <div class="nitem" onclick="doLogout()" style="color:rgba(255,100,100,.72)"><span class="em nav-ico"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></span><span>Logout</span></div>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <main>
+    <!-- OVERVIEW -->
+    <div class="pg on" id="pg-overview">
+      <div class="pghead">
+        <div class="pghead-t"><h2>Dashboard Overview</h2><p>Live snapshot of dormitory operations</p></div>
+        <button class="btn bo btn-sm" onclick="renderAll()"> <span data-i18n="btn.refresh">Refresh</span></button>
+      </div>
+      <div class="statgrid" id="statGrid"></div>
+      <div class="g2">
+        <div class="card">
+          <div class="card-head"><h3 data-i18n="chart.recent.parcels">Recent Parcels</h3><button class="btn bo btn-sm" data-i18n="btn.viewall" onclick="navTo('scan')">View All</button></div>
+          <div class="card-scroll"><table><thead><tr><th data-i18n="th.tracking">Tracking</th><th data-i18n="th.room">Room</th><th data-i18n="th.carrier">Carrier</th><th data-i18n="th.status">Status</th></tr></thead><tbody id="ovParcels"></tbody></table></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3 data-i18n="chart.recent.repairs">Recent Repairs</h3><button class="btn bo btn-sm" data-i18n="btn.viewall" onclick="navTo('repairs')">View All</button></div>
+          <div class="card-scroll"><table><thead><tr><th data-i18n="th.student">Student</th><th data-i18n="th.category">Category</th><th data-i18n="th.status">Status</th></tr></thead><tbody id="ovRepairs"></tbody></table></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3 data-i18n="chart.weekly">Weekly Activity</h3></div>
+        <div class="card-body">
+          <div style="display:flex;gap:24px;align-items:flex-end">
+            <div style="flex:1"><div style="display:flex;align-items:flex-end;gap:4px;height:56px" id="chP"></div><div class="tsm" style="margin-top:5px;text-align:center">Parcels</div></div>
+            <div style="flex:1"><div style="display:flex;align-items:flex-end;gap:4px;height:56px" id="chR"></div><div class="tsm" style="margin-top:5px;text-align:center">Repairs</div></div>
+            <div style="flex:1"><div style="display:flex;align-items:flex-end;gap:4px;height:56px" id="chD"></div><div class="tsm" style="margin-top:5px;text-align:center">Resolved</div></div>
+          </div>
+          <div style="display:flex;margin-top:5px" id="chDays"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCAN PARCEL -->
+    <div class="pg" id="pg-scan">
+      <div class="pghead"><div class="pghead-t"><h2>Scan Parcel + Notify</h2><p>Scan barcode, verify recipient, send notification</p></div></div>
+      <div class="scanlayout">
+        <div class="scansteps">
+          <div class="stepcard">
+            <div class="stepnum">1</div>
+            <h4>Scan Barcode</h4>
+            <div class="camtabs">
+              <button class="ctab on" id="ct-ai" onclick="switchCamTab('ai')">AI Scan</button>
+              <button class="ctab" id="ct-manual" onclick="switchCamTab('manual')">Manual</button>
+            </div>
+            <div id="tab-ai">
+              <div style="background:linear-gradient(135deg,rgba(59,130,246,.06),rgba(139,92,246,.06));border:1.5px solid rgba(139,92,246,.18);border-radius:12px;padding:13px 15px;margin-bottom:12px;display:flex;align-items:flex-start;gap:10px">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+                <div>
+                  <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:2px">AI Smart Scan <span class="ai-tab-badge">Claude Vision</span></div>
+                  <div style="font-size:12px;color:var(--g600);line-height:1.5">ถ่ายรูปหน้ากล่องพัสดุ — AI จะจำแนก tracking number, บริษัทขนส่ง และห้องผู้รับให้อัตโนมัติ</div>
+                </div>
+              </div>
+              <div id="aiDropzone" onclick="document.getElementById('imgUpAI').click()"
+                ondragover="event.preventDefault();this.classList.add('drag')"
+                ondragleave="this.classList.remove('drag')" ondrop="onDropAI(event)"
+                style="width:100%;border:2px dashed rgba(139,92,246,.3);border-radius:11px;padding:28px 16px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:10px;background:rgba(139,92,246,.02)">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 10px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <p style="font-size:13px;color:var(--g600);line-height:1.5"><strong>คลิกหรือลากรูปมาวาง</strong><br><span style="font-size:11px;color:var(--g400)">JPG, PNG, HEIC — AI จะอ่านทุก field อัตโนมัติ</span></p>
+              </div>
+              <input type="file" id="imgUpAI" accept="image/*" capture="environment" style="display:none" onchange="onImgUpAI(event)"/>
+              <img id="imgPrevAI" class="imgprev" alt="AI preview"/>
+              <div class="ai-thinking" id="aiThinking">
+                <div class="ai-pulse" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6);width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;animation:aip 1.2s ease-in-out infinite">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+                </div>
+                <div style="font-size:13px;font-weight:600;color:var(--navy)" id="aiThinkingMsg">กำลังวิเคราะห์...</div>
+                <div style="font-size:11px;color:var(--g400)">Claude Vision กำลังอ่านหน้ากล่องพัสดุ</div>
+              </div>
+              <div id="aiResults" style="display:none">
+                <div style="font-size:11px;font-weight:700;color:var(--g400);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Analysis Result</div>
+                <div class="ai-field-row" id="ai-row-tracking">
+                  <span class="ai-field-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/></svg></span>
+                  <span class="ai-field-label">Tracking</span>
+                  <span class="ai-field-val empty" id="ai-val-tracking">Not found</span>
+                  <span class="ai-confidence" id="ai-conf-tracking"></span>
+                </div>
+                <div class="ai-field-row" id="ai-row-carrier">
+                  <span class="ai-field-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span>
+                  <span class="ai-field-label">Carrier</span>
+                  <span class="ai-field-val empty" id="ai-val-carrier">Not found</span>
+                  <span class="ai-confidence" id="ai-conf-carrier"></span>
+                </div>
+                <div class="ai-field-row" id="ai-row-room">
+                  <span class="ai-field-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+                  <span class="ai-field-label">Room</span>
+                  <span class="ai-field-val empty" id="ai-val-room">Not found</span>
+                  <span class="ai-confidence" id="ai-conf-room"></span>
+                </div>
+                <div class="ai-field-row" id="ai-row-recipient">
+                  <span class="ai-field-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+                  <span class="ai-field-label">Recipient</span>
+                  <span class="ai-field-val empty" id="ai-val-recipient">Not found</span>
+                </div>
+                <div id="aiNote" style="display:none;font-size:12px;color:var(--g600);padding:8px 12px;background:var(--g50);border-radius:8px;margin-bottom:10px;line-height:1.5;border-left:3px solid var(--g300)"></div>
+                <button class="btn bg wf" id="btnAIApply" onclick="applyAIResults()" style="margin-bottom:8px">Apply — Fill Step 2 Automatically</button>
+                <button class="btn bo wf" onclick="document.getElementById('imgUpAI').click()">Retake / New Photo</button>
+              </div>
+              <div id="aiError" style="display:none;padding:11px 14px;background:#fee2e2;border:1px solid #fca5a5;border-radius:10px;font-size:13px;color:#991b1b;margin-bottom:9px"></div>
+              <button class="btn bp wf" id="btnAI" onclick="document.getElementById('imgUpAI').click()" style="margin-top:8px">Take Photo / Choose Image</button>
+            </div>
+            <div id="tab-manual" style="display:none">
+              <div class="fg" style="margin-bottom:8px">
+                <label data-i18n="scan.manual.label">Tracking Number</label>
+                <div style="display:flex;gap:8px">
+                  <input class="fc" id="bInput" placeholder="TH12356789" style="font-family:var(--fm);font-size:15px" oninput="onBI()"/>
+                  <button class="btn bp" onclick="useBcode()">Use</button>
+                </div>
+              </div>
+              <div class="tsm" data-i18n="scan.manual.ex">e.g. TH12356789, FX99182736, JT00283746</div>
+            </div>
+            <div id="bRes" style="display:none;margin-top:9px;padding:9px 13px;background:#d1fae5;border-radius:9px;font-size:13px;color:#065f46;font-weight:600"></div>
+          </div>
+          <div class="stepcard">
+            <div class="stepnum">2</div>
+            <h4>Room &amp; Carrier</h4>
+            <div class="frow" style="margin-bottom:10px">
+              <div class="fg" style="margin-bottom:0">
+                <label>Dormitory</label>
+                <select class="fc" id="dormSel" onchange="onRoomIn()">
+                  <option value="">— Select Dorm —</option>
+                  <option value="F1">F1</option><option value="F2">F2</option><option value="F3">F3</option>
+                  <option value="F4">F4</option><option value="F5">F5</option><option value="F6">F6</option>
+                  <option value="Lamduan 1">Lamduan 1</option><option value="Lamduan 2">Lamduan 2</option>
+                  <option value="Lamduan 3">Lamduan 3</option><option value="Lamduan 4">Lamduan 4</option>
+                  <option value="Lamduan 5">Lamduan 5</option><option value="Lamduan 6">Lamduan 6</option>
+                  <option value="Lamduan 7">Lamduan 7</option>
+                  <option value="Sakthong 1">Sakthong 1</option><option value="Sakthong 2">Sakthong 2</option>
+                  <option value="Sakthong 3">Sakthong 3</option>
+                  <option value="Chinese Dormitory 1">Chinese Dormitory 1</option>
+                  <option value="Chinese Dormitory 2">Chinese Dormitory 2</option>
+                  <option value="International Dormitory">International Dormitory</option>
+                </select>
+              </div>
+              <div class="fg" style="margin-bottom:0">
+                <label>Room Number</label>
+                <input class="fc" id="roomIn" placeholder="e.g. 304" oninput="onRoomIn()"/>
+              </div>
+            </div>
+            <div id="roomHint" style="margin-bottom:8px;font-size:12px"></div>
+            <div class="fg" style="margin-bottom:0">
+              <label>Carrier</label>
+              <select class="fc" id="carrierSel">
+                <option>Kerry Express</option><option>Flash Express</option>
+                <option>J&amp;T Express</option><option>Thailand Post</option>
+                <option>Lazada Logistics</option><option>Shopee Express</option>
+                <option>Best Express</option><option>Ninja Van</option>
+              </select>
+            </div>
+          </div>
+          <div class="stepcard">
+            <div class="stepnum">3</div>
+            <h4>Verify &amp; Confirm</h4>
+            <button class="btn bp wf" onclick="verifyStu()"> <span data-i18n="btn.verify">Verify Student</span></button>
+          </div>
+        </div>
+        <div>
+          <div class="emptybox" id="prevEmpty"><div class="eico" style="font-size:0"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--g300)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M12 3v18M3 8l9 5 9-5"/></svg></div><p>Scan or enter a parcel to see recipient details</p></div>
+          <div class="prevcard" id="prevCard" style="display:none">
+            <h3>Parcel Preview</h3>
+            <div class="prevav" id="prevInit">S</div>
+            <div id="prevRows"></div>
+            <div class="dv"></div>
+            <button class="btn bg wf" onclick="confirmParcel()"> <span data-i18n="btn.confirm_send">Confirm &amp; Send Notification</span></button>
+          </div>
+          <div class="card">
+            <div class="card-head"><h3 data-i18n="scan.today">Scanned Today</h3><span class="bdg binfo" id="todayCnt">0</span></div>
+            <div class="card-scroll"><table><thead><tr><th data-i18n="th.tracking">Tracking</th><th data-i18n="th.room">Room</th><th data-i18n="th.carrier">Carrier</th><th data-i18n="th.time">Time</th><th data-i18n="th.actions">Action</th></tr></thead><tbody id="scanHist"></tbody></table></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REPAIRS -->
+    <div class="pg" id="pg-repairs">
+      <div class="pghead">
+        <div class="pghead-t"><h2>Manage Repairs</h2><p>Review and update student repair requests</p></div>
+        <div class="flex aic gap2">
+          <input class="srch" id="repSrch" placeholder="Search..." oninput="renderRepairs()"/>
+          <select class="fc" id="repFil" style="width:140px" onchange="renderRepairs()">
+            <option value="">All Status</option>
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+          <button class="btn bp btn-sm" onclick="openRepairForm()"> <span data-i18n="btn.new_request">+ New Request</span></button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-scroll"><table><thead><tr>
+          <th data-i18n="th.id">ID</th><th data-i18n="th.student">Student</th><th data-i18n="th.room">Room</th><th data-i18n="th.category">Category</th><th data-i18n="th.description">Description</th><th data-i18n="th.photo">Photo</th><th data-i18n="th.status">Status</th><th data-i18n="th.actions">Actions</th>
+        </tr></thead><tbody id="repBody"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ANNOUNCEMENTS -->
+    <div class="pg" id="pg-announce">
+      <div class="pghead"><div class="pghead-t"><h2>Announcements</h2><p>Create and manage announcements for students</p></div></div>
+      <div class="g2">
+        <div>
+          <div class="fcard">
+            <h3 id="annFormTitle">New Announcement</h3>
+            <input type="hidden" id="editAnnId"/>
+            <div class="fg"><label data-i18n="ann.form.title.label">Title</label><input class="fc" id="annTitle" placeholder="Announcement title..."/></div>
+            <div class="fg"><label data-i18n="ann.form.desc">Description</label><textarea class="fc" id="annDesc" rows="4" placeholder="Details..."></textarea></div>
+            <div class="frow">
+              <div class="fg" style="margin-bottom:0"><label data-i18n="ann.form.dorm">Target Dormitory</label>
+                <select class="fc" id="annDorm">
+                  <option value="All Dormitories">All Dormitories / ทุกหอพัก</option>
+                  <option value="F1">F1</option>
+                  <option value="F2">F2</option>
+                  <option value="F3">F3</option>
+                  <option value="F4">F4</option>
+                  <option value="F5">F5</option>
+                  <option value="F6">F6</option>
+                  <option value="Lamduan 1">Lamduan 1</option>
+                  <option value="Lamduan 2">Lamduan 2</option>
+                  <option value="Lamduan 3">Lamduan 3</option>
+                  <option value="Lamduan 4">Lamduan 4</option>
+                  <option value="Lamduan 5">Lamduan 5</option>
+                  <option value="Lamduan 6">Lamduan 6</option>
+                  <option value="Lamduan 7">Lamduan 7</option>
+                  <option value="Sakthong 1">Sakthong 1</option>
+                  <option value="Sakthong 2">Sakthong 2</option>
+                  <option value="Sakthong 3">Sakthong 3</option>
+                  <option value="Chinese Dormitory 1">Chinese Dormitory 1</option>
+                  <option value="Chinese Dormitory 2">Chinese Dormitory 2</option>
+                  <option value="International Dormitory">International Dormitory</option>
+                </select>
+              </div>
+              <div class="fg" style="margin-bottom:0"><label data-i18n="ann.form.date">Date</label><input type="date" class="fc" id="annDate"/></div>
+            </div>
+            <div class="dv"></div>
+            <div class="flex gap2">
+              <button class="btn bp" onclick="publishAnn()"> <span data-i18n="btn.publish">Publish</span></button>
+              <button class="btn bo" data-i18n="btn.cancel" onclick="resetAnnForm()">Cancel</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="flex aic gap2 mb4">
+            <h3 style="font-family:var(--fh);font-size:15px;font-weight:700;color:var(--navy)" data-i18n="ann.list.title">All Announcements</h3>
+            <span class="bdg binfo mla" id="annCnt">0</span>
+          </div>
+          <div id="annList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STUDENTS -->
+    <div class="pg" id="pg-students">
+      <div class="pghead">
+        <div class="pghead-t"><h2>Student Management</h2><p>Manage registered dormitory students</p></div>
+        <div class="flex aic gap2">
+          <input class="srch" id="stuSrch" placeholder="Search name, room..." oninput="renderStudents()"/>
+          <select class="fc" id="stuDormFil" style="width:170px" onchange="renderStudents()">
+            <option value="">All Dormitories</option>
+            <option value="F1">F1</option>
+            <option value="F2">F2</option>
+            <option value="F3">F3</option>
+            <option value="F4">F4</option>
+            <option value="F5">F5</option>
+            <option value="F6">F6</option>
+            <option value="Lamduan 1">Lamduan 1</option>
+            <option value="Lamduan 2">Lamduan 2</option>
+            <option value="Lamduan 3">Lamduan 3</option>
+            <option value="Lamduan 4">Lamduan 4</option>
+            <option value="Lamduan 5">Lamduan 5</option>
+            <option value="Lamduan 6">Lamduan 6</option>
+            <option value="Lamduan 7">Lamduan 7</option>
+            <option value="Sakthong 1">Sakthong 1</option>
+            <option value="Sakthong 2">Sakthong 2</option>
+            <option value="Sakthong 3">Sakthong 3</option>
+            <option value="Chinese Dormitory 1">Chinese Dormitory 1</option>
+            <option value="Chinese Dormitory 2">Chinese Dormitory 2</option>
+            <option value="International Dormitory">International Dormitory</option>
+          </select>
+          <button class="btn bp btn-sm" onclick="openStudentForm(null)"> <span data-i18n="btn.add_student">+ Add Student</span></button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-scroll"><table><thead><tr><th data-i18n="stu.th.id">ID</th><th data-i18n="stu.th.name">Name</th><th data-i18n="stu.th.room">Room</th><th data-i18n="stu.th.dorm">Dormitory</th><th data-i18n="stu.th.email">Email</th><th data-i18n="th.actions">Actions</th></tr></thead>
+        <tbody id="stuBody"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- AUDIT -->
+    <div class="pg" id="pg-audit">
+      <div class="pghead">
+        <div class="pghead-t"><h2>Audit Log</h2><p>Full system activity history</p></div>
+        <div class="flex aic gap2">
+          <input class="srch" id="auSrch" placeholder="Search..." oninput="renderAudit()"/>
+          <select class="fc" id="auFil" style="width:150px" onchange="renderAudit()">
+            <option value="">All Actions</option>
+            <option value="Parcel">Parcel</option><option value="Repair">Repair</option>
+            <option value="Announcement">Announcement</option>
+            <option value="Student">Student</option><option value="Login">Login</option>
+          </select>
+          <button class="btn br btn-sm" onclick="clearAudit()"> <span data-i18n="btn.clear_log">Clear Log</span></button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3 data-i18n="nav.audit">Activities</h3><span class="bdg binfo" id="auCnt">0</span></div>
+        <div id="auList"></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="pg" id="pg-settings">
+      <div class="pghead"><div class="pghead-t"><h2>Settings</h2><p>Admin profile and preferences</p></div></div>
+      <div class="g2">
+        <div>
+          <div class="fcard">
+            <h3 data-i18n="set.profile.title">Admin Profile</h3>
+            <div class="flex aic" style="gap:18px;margin-bottom:20px">
+              <div class="paw" onclick="document.getElementById('phUp').click()">
+                <div class="pabig" id="paBig">A</div><div class="paedit"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+              </div>
+              <div>
+                <div style="font-weight:700;font-size:15px" id="paName">Admin User</div>
+                <div style="font-size:13px;color:var(--g400)" id="paEmail">admin@mfu.ac.th</div>
+                <div class="tsm" style="margin-top:3px" data-i18n="set.profile.click">Click avatar to change photo</div>
+              </div>
+            </div>
+            <input type="file" id="phUp" accept="image/*" style="display:none" onchange="prevPhoto(event)"/>
+            <div class="fg"><label data-i18n="set.name">Full Name</label><input class="fc" id="stName" value="Admin User"/></div>
+            <div class="fg"><label data-i18n="set.email">Email</label><input class="fc" id="stEmail" value="admin@mfu.ac.th"/></div>
+            <div class="fg"><label data-i18n="set.role">Role</label>
+              <select class="fc" id="stRole">
+                <option>Dormitory Staff</option><option>Head Admin</option>
+                <option>Maintenance</option><option>Security</option>
+              </select>
+            </div>
+            <button class="btn bp" onclick="saveProfile()"> <span data-i18n="btn.save_profile">Save Profile</span></button>
+          </div>
+        </div>
+        <div>
+          <div class="fcard">
+            <h3 data-i18n="set.pw.title">Change Password</h3>
+            <div class="fg"><label data-i18n="set.pw.current">Current Password</label><input type="password" class="fc" id="cpw" placeholder="••••••••"/></div>
+            <div class="fg">
+              <label data-i18n="set.pw.new">New Password</label>
+              <input type="password" class="fc" id="npw" placeholder="6+ chars, A-Z, a-z, 0-9" oninput="pwStr()"/>
+              <div id="pwS" style="margin-top:5px;font-size:12px"></div>
+            </div>
+            <div class="fg"><label data-i18n="set.pw.confirm">Confirm Password</label><input type="password" class="fc" id="cpw2" placeholder="••••••••"/></div>
+            <button class="btn bp" onclick="changePw()"> <span data-i18n="btn.update_pw">Update Password</span></button>
+          </div>
+          <div class="fcard">
+            <h3 data-i18n="set.lang.title">Language / ภาษา</h3>
+            <p class="tsm mb4" data-i18n="set.lang.sub">Choose your preferred interface language.</p>
+            <div class="flex gap2">
+              <button class="btn bp" onclick="setLang('en')"> EN — English</button>
+              <button class="btn bo" onclick="setLang('th')"> TH — ภาษาไทย</button>
+            </div>
+          </div>
+          <div class="fcard" style="border-color:rgba(239,68,68,.25)">
+            <h3 style="color:var(--red)" data-i18n="set.danger.title">Danger Zone</h3>
+            <p class="tsm mb4" data-i18n="set.danger.sub">Sign out from the admin dashboard.</p>
+            <button class="btn br" onclick="doLogout()"> <span data-i18n="nav.logout">Sign Out</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- REPAIR DETAIL MODAL -->
+<div class="mbk" id="mRepair">
+  <div class="mdl" style="max-width:580px">
+    <button class="mclose" onclick="closeM('mRepair')">✕</button>
+    <h3 id="mRepairTitle">Repair Detail</h3>
+    <div id="mRepairContent"></div>
+    <div class="mfoot">
+      <button class="btn bo" data-i18n="btn.cancel" onclick="closeM('mRepair')">Close</button>
+      <button class="btn bp" data-i18n="btn.update_status" onclick="saveRepairModal()">Update Status</button>
+    </div>
+  </div>
+</div>
+
+<!-- REPAIR FORM MODAL -->
+<div class="mbk" id="mRepairForm">
+  <div class="mdl" style="max-width:520px">
+    <button class="mclose" onclick="closeM('mRepairForm')">✕</button>
+    <h3 data-i18n="rep.form.title">New Repair Request</h3>
+    <div class="fg"><label data-i18n="rep.form.student">Student</label><select class="fc" id="rStuId"></select></div>
+    <div class="frow">
+      <div class="fg"><label data-i18n="rep.form.category">Category</label>
+        <select class="fc" id="rCat">
+          <option>Electrical</option><option>Plumbing</option><option>Furniture</option>
+          <option>Internet</option><option>Air Conditioning</option><option>Other</option>
+        </select>
+      </div>
+      <div class="fg"><label data-i18n="rep.form.date">Date</label><input type="date" class="fc" id="rDate"/></div>
+    </div>
+    <div class="fg"><label data-i18n="rep.form.desc">Description</label><textarea class="fc" id="rDesc" rows="3" placeholder="Describe the issue..."></textarea></div>
+    <div class="fg"><label data-i18n="rep.form.photo">Photo URL (optional)</label><input class="fc" id="rPhoto" placeholder="https://..."/></div>
+    <div class="mfoot">
+      <button class="btn bo" data-i18n="btn.cancel" onclick="closeM('mRepairForm')">Cancel</button>
+      <button class="btn bp" data-i18n="btn.submit_repair" onclick="submitRepair()">Submit Request</button>
+    </div>
+  </div>
+</div>
+
+<!-- STUDENT FORM MODAL -->
+<div class="mbk" id="mStudent">
+  <div class="mdl" style="max-width:500px">
+    <button class="mclose" onclick="closeM('mStudent')">✕</button>
+    <h3 id="mStuTitle">Add Student</h3>
+    <input type="hidden" id="editStuId"/>
+    <div class="frow">
+      <div class="fg"><label><span data-i18n="stu.form.name">Full Name</span> <span style="color:var(--red)">*</span></label><input class="fc" id="sName" placeholder="e.g. Somchai Jaidee"/></div>
+      <div class="fg"><label><span data-i18n="stu.form.id">Student ID</span> <span style="color:var(--red)">*</span></label><input class="fc" id="sStuId" placeholder="e.g. 6731234" style="font-family:var(--fm)"/></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label><span data-i18n="stu.form.room">Room Number</span> <span style="color:var(--red)">*</span></label><input class="fc" id="sRoom" placeholder="e.g. 304, 201, 115"/></div>
+      <div class="fg"><label><span data-i18n="stu.form.email">Email</span> <span style="color:var(--red)">*</span></label><input class="fc" id="sEmail" placeholder="student@lamduan.mfu.ac.th"/></div>
+    </div>
+    <div class="fg"><label><span data-i18n="stu.form.dorm">Dormitory Building</span> <span style="color:var(--red)">*</span></label>
+      <select class="fc" id="sDorm">
+        <option value="">— Select Dormitory —</option>
+        <option value="F1">F1</option>
+        <option value="F2">F2</option>
+        <option value="F3">F3</option>
+        <option value="F4">F4</option>
+        <option value="F5">F5</option>
+        <option value="F6">F6</option>
+        <option value="Lamduan 1">Lamduan 1</option>
+        <option value="Lamduan 2">Lamduan 2</option>
+        <option value="Lamduan 3">Lamduan 3</option>
+        <option value="Lamduan 4">Lamduan 4</option>
+        <option value="Lamduan 5">Lamduan 5</option>
+        <option value="Lamduan 6">Lamduan 6</option>
+        <option value="Lamduan 7">Lamduan 7</option>
+        <option value="Sakthong 1">Sakthong 1</option>
+        <option value="Sakthong 2">Sakthong 2</option>
+        <option value="Sakthong 3">Sakthong 3</option>
+        <option value="Chinese Dormitory 1">Chinese Dormitory 1</option>
+        <option value="Chinese Dormitory 2">Chinese Dormitory 2</option>
+        <option value="International Dormitory">International Dormitory</option>
+      </select>
+    </div>
+    <div class="mfoot">
+      <button class="btn bo" data-i18n="btn.cancel" onclick="closeM('mStudent')">Cancel</button>
+      <button class="btn bp" data-i18n="btn.save_student" onclick="saveStudent()">Save Student</button>
+    </div>
+  </div>
+</div>
+
+<!-- PHOTO MODAL -->
+<div class="mbk" id="mPhoto">
+  <div class="mdl" style="max-width:500px;padding:14px">
+    <button class="mclose" onclick="closeM('mPhoto')">✕</button>
+    <img id="mPhImg" style="width:100%;border-radius:10px;margin-top:10px" alt="photo evidence"/>
+    <p id="mPhCap" style="margin-top:9px;font-size:13px;color:var(--g600);text-align:center"></p>
+  </div>
+</div>
+
+<!-- CONFIRM DIALOG -->
+<div class="cfbk" id="cfDlg">
+  <div class="cfbox">
+    <div style="font-size:34px;margin-bottom:9px" id="cfIco">⚠️</div>
+    <h4 id="cfTitle">Are you sure?</h4>
+    <p id="cfMsg">This action cannot be undone.</p>
+    <div class="cfbtns">
+      <button class="btn bo" data-i18n="btn.cancel" onclick="closeCf(false)">Cancel</button>
+      <button class="btn br" id="cfOkBtn" onclick="closeCf(true)">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="toastwrap" id="toastWrap"></div>
+
+<script>
+// ════════════════════════════════════════════════════
+// STORAGE HELPERS
+// ════════════════════════════════════════════════════
+const KEYS={students:'mfu_students',parcels:'mfu_parcels',repairs:'mfu_repairs',
+  announcements:'mfu_ann',audit:'mfu_audit',notifs:'mfu_notifs',adminCfg:'mfu_admin'};
+
+function load(k){try{return JSON.parse(localStorage.getItem(k))||[];}catch(e){return[];}}
+function loadObj(k,def){try{const v=JSON.parse(localStorage.getItem(k));return(v&&typeof v==='object'&&!Array.isArray(v))?v:def;}catch(e){return def;}}
+function save(k,v){localStorage.setItem(k,JSON.stringify(v));}
+
+// ════════════════════════════════════════════════════
+// ADMIN CONFIG
+// ════════════════════════════════════════════════════
+const DEFAULT_ADMIN={name:'Admin User',email:'admin@mfu.ac.th',pw:'Admin123',photo:null,role:'Dormitory Staff'};
+let adminCfg=loadObj(KEYS.adminCfg,{...DEFAULT_ADMIN});
+function saveAdminCfg(){save(KEYS.adminCfg,adminCfg);}
+
+// ════════════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════════════
+function today(){return new Date().toISOString().split('T')[0];}
+function nowTime(){const n=new Date();return n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');}
+function nextId(prefix,list){
+  const nums=list.map(x=>{const m=(x.id||'').match(/(\d+)$/);return m?parseInt(m[1]):0;});
+  return prefix+(Math.max(0,...nums)+1).toString().padStart(3,'0');
+}
+function esc(str){return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function valEmail(e){return/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);}
+function valPw(p){return p.length>=6&&/[A-Z]/.test(p)&&/[a-z]/.test(p)&&/[0-9]/.test(p);}
+
+// ════════════════════════════════════════════════════
+// SEED DEFAULT DATA
+// ════════════════════════════════════════════════════
+function initData(){
+  if(!load(KEYS.students).length){
+    save(KEYS.students,[
+      {id:'S001',name:'Somchai Jaidee',room:'304',email:'somchai@mfu.ac.th',dorm:'F3'},
+      {id:'S002',name:'Nantawan Buakao',room:'110',email:'nantawan@mfu.ac.th',dorm:'Lamduan 1'},
+      {id:'S003',name:'Krit Phongphan',room:'205',email:'krit@mfu.ac.th',dorm:'Sakthong 1'},
+      {id:'S004',name:'Pimchanok Srisuk',room:'302',email:'pim@mfu.ac.th',dorm:'F3'},
+      {id:'S005',name:'Arisa Maneerat',room:'401',email:'arisa@mfu.ac.th',dorm:'Lamduan 2'},
+      {id:'S006',name:'Thanakorn Wichit',room:'115',email:'thanakorn@mfu.ac.th',dorm:'F1'},
+      {id:'S007',name:'Warisa Thongchai',room:'310',email:'warisa@mfu.ac.th',dorm:'Sakthong 2'},
+    ]);
+  }
+  if(!load(KEYS.parcels).length){
+    save(KEYS.parcels,[
+      {id:'P001',tracking:'TH12356789',carrier:'Kerry Express',room:'304',dorm:'F3',student:'Somchai Jaidee',time:'08:32',pickedUp:false,date:today()},
+      {id:'P002',tracking:'FX99182736',carrier:'Flash Express',room:'110',dorm:'Lamduan 1',student:'Nantawan Buakao',time:'09:15',pickedUp:true,date:today()},
+      {id:'P003',tracking:'JT00283746',carrier:'J&T Express',room:'205',dorm:'Sakthong 1',student:'Krit Phongphan',time:'10:02',pickedUp:false,date:today()},
+    ]);
+  }
+  if(!load(KEYS.repairs).length){
+    save(KEYS.repairs,[
+      {id:'R001',studentId:'S001',studentName:'Somchai Jaidee',room:'304',dorm:'F3',cat:'Electrical',desc:'Air conditioner not working, room is very hot.',photo:'https://placehold.co/400x280/e2e8f0/475569?text=AC+Unit',status:'Pending',date:'2025-03-10'},
+      {id:'R002',studentId:'S002',studentName:'Nantawan Buakao',room:'110',dorm:'Lamduan 1',cat:'Plumbing',desc:'Water tap leaking in bathroom, dripping constantly.',photo:'https://placehold.co/400x280/e2e8f0/475569?text=Water+Tap',status:'In Progress',date:'2025-03-09'},
+      {id:'R003',studentId:'S003',studentName:'Krit Phongphan',room:'205',dorm:'Sakthong 1',cat:'Furniture',desc:'Broken bed frame, unstable and noisy.',photo:'https://placehold.co/400x280/e2e8f0/475569?text=Bed+Frame',status:'Pending',date:'2025-03-11'},
+      {id:'R004',studentId:'S004',studentName:'Pimchanok Srisuk',room:'302',dorm:'F3',cat:'Electrical',desc:'Power socket not working near desk.',photo:'https://placehold.co/400x280/e2e8f0/475569?text=Socket',status:'Completed',date:'2025-03-07'},
+      {id:'R005',studentId:'S005',studentName:'Arisa Maneerat',room:'401',dorm:'Lamduan 2',cat:'Plumbing',desc:'Shower pressure very low.',photo:'https://placehold.co/400x280/e2e8f0/475569?text=Shower',status:'In Progress',date:'2025-03-08'},
+    ]);
+  }
+  if(!load(KEYS.announcements).length){
+    save(KEYS.announcements,[
+      {id:'AN001',title:'Water Maintenance Sunday',desc:'Water supply off 08:00–12:00 on March 15 for pipe maintenance. Please store water in advance.',dorm:'All Dormitories',date:'2025-03-14',by:'Admin User'},
+      {id:'AN002',title:'Dorm Fee Payment Reminder',desc:'Please pay dormitory fees before March 31 to avoid a late penalty fee.',dorm:'All Dormitories',date:'2025-03-12',by:'Admin User'},
+      {id:'AN003',title:'Community Cleaning Day',desc:'Join us Saturday morning for dorm cleaning. All Dorm F residents are encouraged.',dorm:'Dorm F',date:'2025-03-10',by:'Admin User'},
+    ]);
+  }
+  if(!load(KEYS.audit).length){
+    save(KEYS.audit,[
+      {time:'09:30',admin:'Admin User',action:'Admin Login',detail:'System initialized',icon:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>',color:'#ede9fe'},
+    ]);
+  }
+}
+
+// ════════════════════════════════════════════════════
+// AUTH
+// ════════════════════════════════════════════════════
+function doLogin(){
+  const email=document.getElementById('lEmail').value.trim();
+  const pw=document.getElementById('lPw').value;
+  // Clear errors
+  ['lErr','eEmail','ePw'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.style.display='none';el.classList.remove('show');el.textContent='';}
+  });
+  let ok=true;
+  if(!valEmail(email)){showFerr('eEmail','Please enter a valid email address.');ok=false;}
+  if(pw.length<1){showFerr('ePw','Please enter your password.');ok=false;}
+  if(!ok)return;
+  // Reload from storage to support changed passwords
+  adminCfg=loadObj(KEYS.adminCfg,{...DEFAULT_ADMIN});
+  if(email!==adminCfg.email||pw!==adminCfg.pw){
+    const e=document.getElementById('lErr');
+    e.textContent='Wrong credentials. Demo: admin@mfu.ac.th / Admin123';
+    e.style.display='block';e.classList.add('show');return;
+  }
+  // Login success
+  document.getElementById('loginWrap').style.display='none';
+  document.getElementById('appWrap').style.display='block';
+  document.getElementById('annDate').value=today();
+  document.getElementById('rDate').value=today();
+  document.getElementById('stName').value=adminCfg.name;
+  document.getElementById('stEmail').value=adminCfg.email;
+  initData();
+  updateHeaderAvatar();
+  applyTranslations();
+  renderAll();
+  updateBadges();
+  renderNotifs();
+  logAct('Admin Login','Logged in as '+adminCfg.email,'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>','#ede9fe');
+  toast('Welcome back, '+adminCfg.name+'! 👋','ok');
+}
+function showFerr(id,msg){const e=document.getElementById(id);if(!e)return;e.textContent=msg;e.style.display='block';e.classList.add('show');}
+function doLogout(){
+  cf('🚪',lang==='th'?'ออกจากระบบ':'Logout',t('confirm.logout'),()=>{
+    stopCam();
+    document.getElementById('appWrap').style.display='none';
+    document.getElementById('loginWrap').style.display='flex';
+    document.getElementById('lPw').value='';
+    document.getElementById('lEmail').value='';
+    document.getElementById('lErr').style.display='none';
+  });
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+  const bl=document.getElementById('btnLogin');
+  if(bl)bl.onclick=doLogin;
+  const lp=document.getElementById('lPw');
+  if(lp)lp.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+  const le=document.getElementById('lEmail');
+  if(le)le.addEventListener('keydown',e=>{if(e.key==='Enter'){const p=document.getElementById('lPw');if(p)p.focus();}});
+});
+
+// ════════════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════════════
+const NAVMAP={overview:'n-overview',scan:'n-scan',repairs:'n-repairs',
+  announce:'n-announce',students:'n-students',audit:'n-audit',settings:'n-settings'};
+
+function navTo(page){
+  Object.values(NAVMAP).forEach(id=>document.getElementById(id)?.classList.remove('on'));
+  document.getElementById(NAVMAP[page])?.classList.add('on');
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.getElementById('pg-'+page)?.classList.add('on');
+  if(page!=='scan')stopCam();
+  closeNP();
+  const refresh={
+    overview:()=>{renderStats();renderCharts();renderOvTables();},
+    repairs:renderRepairs,announce:renderAnnouncements,
+    students:renderStudents,audit:renderAudit,scan:renderScanHist,
+    settings:syncSettingsPage,
+  };
+  if(refresh[page])refresh[page]();
+}
+
+// ════════════════════════════════════════════════════
+// NOTIFICATIONS
+// ════════════════════════════════════════════════════
+function toggleNP(){
+  const panel=document.getElementById('npanel');
+  panel.classList.toggle('open');
+  if(panel.classList.contains('open')){
+    const ns=load(KEYS.notifs);ns.forEach(n=>n.read=true);save(KEYS.notifs,ns);
+    updateNDot();renderNotifs();
+  }
+}
+function closeNP(){document.getElementById('npanel').classList.remove('open');}
+function clearNotifs(){save(KEYS.notifs,[]);renderNotifs();updateNDot();}
+function updateNDot(){
+  const u=load(KEYS.notifs).filter(n=>!n.read).length;
+  document.getElementById('ndot').style.display=u?'block':'none';
+}
+function addNotif(icon,text){
+  const ns=load(KEYS.notifs);
+  ns.unshift({icon,text,time:nowTime(),read:false});
+  save(KEYS.notifs,ns.slice(0,30));
+  renderNotifs();updateNDot();
+}
+function renderNotifs(){
+  const ns=load(KEYS.notifs);const el=document.getElementById('nlist');
+  if(!ns.length){el.innerHTML=`<div style="padding:20px;text-align:center;color:var(--g400);font-size:13px">${t('notif.empty')}</div>`;return;}
+  el.innerHTML=ns.slice(0,15).map(n=>`
+    <div class="nitem2" style="${n.read?'opacity:.6':''}">
+      <span style="font-size:16px">${n.icon}</span>
+      <div><div class="nitxt">${esc(n.text)}</div><div class="nitime">${n.time}</div></div>
+    </div>`).join('');
+}
+document.addEventListener('click',e=>{if(!e.target.closest('.nwrap'))closeNP();});
+
+// ════════════════════════════════════════════════════
+// RENDER ALL
+// ════════════════════════════════════════════════════
+function renderAll(){
+  renderStats();renderCharts();renderOvTables();
+  renderRepairs();renderAnnouncements();renderStudents();
+  renderAudit();renderScanHist();
+  applyTranslations();
+}
+function updateBadges(){
+  const waiting=load(KEYS.parcels).filter(x=>!x.pickedUp).length;
+  const active=load(KEYS.repairs).filter(x=>x.status==='Pending'||x.status==='In Progress').length;
+  const bs=document.getElementById('b-scan');
+  const br=document.getElementById('b-repair');
+  if(bs){bs.textContent=waiting||'';bs.style.display=waiting?'':'none';}
+  if(br){br.textContent=active||'';br.style.display=active?'':'none';}
+}
+
+// ════════════════════════════════════════════════════
+// DASHBOARD STATS
+// ════════════════════════════════════════════════════
+function renderStats(){
+  const parcels=load(KEYS.parcels),repairs=load(KEYS.repairs),students=load(KEYS.students);
+  const g=document.getElementById('statGrid');if(!g)return;
+  const svgBox=(svg,bg,stroke)=>`<div class="stat-ico-wrap" style="background:${bg}"><svg viewBox="0 0 24 24" style="stroke:${stroke};fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round">${svg}</svg></div>`;
+  const cards=[
+    {svg:svgBox('<path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M12 3v18M3 8l9 5 9-5"/>','#dbeafe','#3b82f6'),n:parcels.filter(p=>p.date===today()).length,l:t('stat.parcels'),tr:t('stat.sub.parcels'),tc:'var(--blue)'},
+    {svg:svgBox('<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>','#fef3c7','#f59e0b'),n:repairs.filter(r=>r.status==='Pending').length,l:t('stat.pending'),tr:t('stat.sub.pending'),tc:'var(--yellow)'},
+    {svg:svgBox('<path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>','#dbeafe','#3b82f6'),n:repairs.filter(r=>r.status==='In Progress').length,l:t('stat.progress'),tr:t('stat.sub.progress'),tc:'var(--blue)'},
+    {svg:svgBox('<path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>','#d1fae5','#10b981'),n:repairs.filter(r=>r.status==='Completed').length,l:t('stat.completed'),tr:t('stat.sub.completed'),tc:'var(--green)'},
+    {svg:svgBox('<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>','#ede9fe','#8b5cf6'),n:students.length,l:t('stat.students'),tr:t('stat.sub.students'),tc:'var(--blue)'},
+  ];
+  g.innerHTML=cards.map(c=>`
+    <div class="statcard">
+      ${c.svg}
+      <div class="num">${c.n.toLocaleString()}</div>
+      <div class="lbl">${c.l}</div>
+      <div class="tr" style="color:${c.tc}">${c.tr}</div>
+    </div>`).join('');
+}
+function renderCharts(){
+  const parcels=load(KEYS.parcels),repairs=load(KEYS.repairs);
+  const pD=[12,19,16,24,21,28,parcels.filter(p=>p.date===today()).length];
+  const rD=[3,5,4,2,6,3,repairs.filter(r=>r.status==='Pending').length];
+  const dD=[8,14,12,18,16,22,repairs.filter(r=>r.status==='Completed').length];
+  const days=['M','T','W','T','F','S','T'];
+  function bars(id,data,col){
+    const el=document.getElementById(id);if(!el)return;
+    const m=Math.max(...data,1);
+    el.innerHTML=data.map((v,i)=>`<div class="chartbar" style="height:${Math.round((v/m)*100)}%;background:${col};opacity:.72" title="${days[i]}: ${v}"></div>`).join('');
+  }
+  bars('chP',pD,'var(--blue)');bars('chR',rD,'var(--yellow)');bars('chD',dD,'var(--green)');
+  const dl=document.getElementById('chDays');
+  if(dl)dl.innerHTML=days.map(d=>`<span style="flex:1;font-size:10px;color:var(--g400);text-align:center">${d}</span>`).join('');
+}
+function renderOvTables(){
+  const pb=document.getElementById('ovParcels');
+  if(pb)pb.innerHTML=load(KEYS.parcels).slice(0,5).map(p=>`
+    <tr>
+      <td style="font-family:var(--fm);font-size:12px">${esc(p.tracking)}</td>
+      <td><strong>${esc(p.room)}</strong></td><td>${esc(p.carrier)}</td>
+      <td>${p.pickedUp?`<span class="bdg bcomp">${t('pickup.done')}</span>`:`<span class="bdg bwarn">${lang==='th'?'รอรับ':'Waiting'}</span>`}</td>
+    </tr>`).join('');
+  const rb=document.getElementById('ovRepairs');
+  if(rb)rb.innerHTML=load(KEYS.repairs).slice(0,5).map(r=>`
+    <tr>
+      <td>${esc(r.studentName.split(' ')[0])}</td>
+      <td><span class="bdg binfo">${esc(r.cat)}</span></td>
+      <td>${stBadge(r.status)}</td>
+    </tr>`).join('');
+}
+
+// ════════════════════════════════════════════════════
+// CAMERA & BARCODE SCAN
+// ════════════════════════════════════════════════════
+let camStream=null,scanActive=false,scannedData=null,liveDetector=null,rafId=null;
+const lc=document.createElement('canvas'),lctx=lc.getContext('2d');
+
+function switchCamTab(tab){
+  ['ai','manual'].forEach(t=>{
+    document.getElementById('ct-'+t)?.classList.toggle('on',t===tab);
+    const pane=document.getElementById('tab-'+t);
+    if(pane)pane.style.display=t===tab?'block':'none';
+  });
+  stopCam();
+}
+
+function onDrop(e){
+  e.preventDefault();
+  document.getElementById('dropzone').classList.remove('drag');
+  const f=e.dataTransfer?.files[0];
+  if(f)processImgFile(f);
+}
+function onImgUp(e){const f=e.target.files[0];if(f)processImgFile(f);}
+
+function processImgFile(file){
+  if(!file.type.startsWith('image/')){toast('Please select an image file.','warn');return;}
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const img=document.getElementById('imgPrev');
+    img.src=ev.target.result;img.style.display='block';
+    document.getElementById('photoRes').style.display='none';
+    document.getElementById('photoErr').style.display='none';
+    img.onload=()=>decodeImg(img);
+  };
+  reader.readAsDataURL(file);
+}
+
+function decodeImg(imgEl){
+  if('BarcodeDetector' in window){
+    const bd=new BarcodeDetector({formats:['qr_code','code_128','code_39','ean_13','ean_8','itf','data_matrix','pdf_417','upc_a','upc_e','codabar','aztec']});
+    bd.detect(imgEl).then(codes=>{codes.length>0?onCodeFound(codes[0].rawValue):tryZXingOnImg(imgEl);}).catch(()=>tryZXingOnImg(imgEl));
+  }else{tryZXingOnImg(imgEl);}
+}
+
+function tryZXingOnImg(imgEl){
+  lc.width=imgEl.naturalWidth;lc.height=imgEl.naturalHeight;lctx.drawImage(imgEl,0,0);
+  loadZXing(()=>{
+    try{
+      const hints=new Map();
+      hints.set(ZXing.DecodeHintType.TRY_HARDER,true);
+      hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS,[
+        ZXing.BarcodeFormat.QR_CODE,ZXing.BarcodeFormat.CODE_128,ZXing.BarcodeFormat.CODE_39,
+        ZXing.BarcodeFormat.EAN_13,ZXing.BarcodeFormat.EAN_8,ZXing.BarcodeFormat.ITF,
+        ZXing.BarcodeFormat.DATA_MATRIX,ZXing.BarcodeFormat.PDF_417,
+        ZXing.BarcodeFormat.UPC_A,ZXing.BarcodeFormat.UPC_E,ZXing.BarcodeFormat.CODABAR,
+      ]);
+      const rd=new ZXing.MultiFormatReader(hints);
+      const imgData=lctx.getImageData(0,0,lc.width,lc.height);
+      const src=new ZXing.RGBLuminanceSource(new Uint8ClampedArray(imgData.data),lc.width,lc.height);
+      const bmp=new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(src));
+      const res=rd.decode(bmp);
+      if(res)onCodeFound(res.getText());
+    }catch(e){
+      const el=document.getElementById('photoErr');
+      el.textContent='⚠️ No barcode detected. Try a clearer photo or use the Manual tab.';
+      el.style.display='block';
+    }
+  });
+}
+
+function onCodeFound(text){
+  document.getElementById('photoRes').textContent='✅ Barcode found: '+text;
+  document.getElementById('photoRes').style.display='block';
+  document.getElementById('photoErr').style.display='none';
+  setBarcode(text);
+  toast('📦 Barcode detected: '+text,'ok');
+}
+function setBarcode(text){
+  const bi=document.getElementById('bInput');if(bi)bi.value=text;
+  const r=document.getElementById('bRes');r.textContent='📦 Tracking: '+text;r.style.display='block';
+}
+function loadZXing(cb){
+  if(window.ZXing){cb();return;}
+  const s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/zxing-js/0.20.0/index.min.js';
+  s.onload=cb;s.onerror=()=>toast('ZXing library unavailable. Check internet connection.','err');
+  document.head.appendChild(s);
+}
+
+async function startCam(){
+  const btn=document.getElementById('btnSC');
+  btn.innerHTML='<span class="spin"></span> Starting...';btn.disabled=true;
+  document.getElementById('liveErrMsg').style.display='none';
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    btn.innerHTML='📷 Start Camera';btn.disabled=false;
+    document.getElementById('liveErrMsg').style.display='block';
+    document.getElementById('liveErrMsg').textContent='❌ Camera API not available. Use HTTPS or localhost.';
+    return;
+  }
+  const constraints=[
+    {video:{facingMode:{exact:'environment'},width:{ideal:1280},height:{ideal:720}}},
+    {video:{facingMode:{ideal:'environment'}}},
+    {video:true}
+  ];
+  let stream=null;
+  for(const c of constraints){
+    try{stream=await navigator.mediaDevices.getUserMedia(c);break;}catch(e){}
+  }
+  if(!stream){
+    btn.innerHTML='📷 Start Camera';btn.disabled=false;
+    document.getElementById('liveErrMsg').style.display='block';
+    document.getElementById('liveErrMsg').textContent='❌ Cannot access camera. Allow camera permission and try again.';
+    document.getElementById('camph').style.display='flex';
+    return;
+  }
+  camStream=stream;
+  const vid=document.getElementById('camvid');
+  vid.srcObject=stream;
+  try{await vid.play();}catch(e){}
+  document.getElementById('camph').style.display='none';
+  document.getElementById('camwrap').style.display='block';
+  btn.style.display='none';document.getElementById('btnEC').style.display='';
+  scanActive=true;
+  if('BarcodeDetector' in window){
+    liveDetector=new BarcodeDetector({formats:['qr_code','code_128','code_39','ean_13','ean_8','itf','data_matrix','pdf_417','upc_a','upc_e']});
+    startLiveLoop(vid);
+    document.getElementById('camstat').textContent='🟢 Scanning (BarcodeDetector)...';
+  }else{
+    loadZXing(()=>startZXingLive(vid));
+    document.getElementById('camstat').textContent='🟢 Scanning (ZXing)...';
+  }
+  toast('📷 Camera started','ok');
+}
+function startLiveLoop(vid){
+  async function loop(){
+    if(!scanActive||!vid.srcObject)return;
+    if(vid.readyState>=2){
+      lc.width=vid.videoWidth;lc.height=vid.videoHeight;lctx.drawImage(vid,0,0);
+      try{const codes=await liveDetector.detect(lc);if(codes.length&&scanActive){onLiveFound(codes[0].rawValue);return;}}catch(e){}
+    }
+    rafId=requestAnimationFrame(loop);
+  }
+  rafId=requestAnimationFrame(loop);
+}
+function startZXingLive(vid){
+  try{
+    const hints=new Map();hints.set(ZXing.DecodeHintType.TRY_HARDER,true);
+    const zr=new ZXing.BrowserMultiFormatReader(hints);
+    zr.decodeFromVideoDevice(null,'camvid',res=>{if(res&&scanActive)onLiveFound(res.getText());});
+  }catch(e){document.getElementById('camstat').textContent='Camera on — enter barcode manually below';}
+}
+function onLiveFound(text){
+  document.getElementById('camstat').textContent='✅ Found: '+text;
+  setBarcode(text);toast('📦 Barcode: '+text,'ok');
+  scanActive=false;
+  setTimeout(()=>{if(camStream){scanActive=true;document.getElementById('camstat').textContent='Scanning...';if(liveDetector)startLiveLoop(document.getElementById('camvid'));}},3000);
+}
+function stopCam(){
+  scanActive=false;
+  if(rafId){cancelAnimationFrame(rafId);rafId=null;}
+  if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}
+  const vid=document.getElementById('camvid');if(vid)vid.srcObject=null;
+  const cp=document.getElementById('camph');if(cp)cp.style.display='flex';
+  const cw=document.getElementById('camwrap');if(cw)cw.style.display='none';
+  const btn=document.getElementById('btnSC');if(btn){btn.innerHTML='📷 Start Camera';btn.disabled=false;btn.style.display='';}
+  const ec=document.getElementById('btnEC');if(ec)ec.style.display='none';
+}
+function onBI(){
+  const v=(document.getElementById('bInput')?.value||'').trim();
+  const r=document.getElementById('bRes');
+  if(v.length>3){r.textContent='📦 '+v;r.style.display='block';}else r.style.display='none';
+}
+function useBcode(){
+  const c=(document.getElementById('bInput')?.value||'').trim();
+  if(!c){toast('Enter a tracking number.','warn');return;}
+  setBarcode(c);toast('Tracking code ready ✅','ok');
+}
+function onRoomIn(){
+  const room=document.getElementById('roomIn').value.trim();
+  const dorm=(document.getElementById('dormSel')?.value||'');
+  const h=document.getElementById('roomHint');
+  if(!room&&!dorm){h.innerHTML='';return;}
+  const stu=load(KEYS.students).find(s=>
+    s.room.toUpperCase()===room.toUpperCase()&&
+    (!dorm||s.dorm===dorm)
+  );
+  if(room.length>0){
+    h.innerHTML=stu
+      ?`<span style="color:var(--green);font-weight:600">✓ ${esc(stu.name)}</span>`
+      :`<span style="color:var(--yellow)">⚠ No student found in ${esc(dorm||'this dorm')} room ${esc(room)}</span>`;
+  }else h.innerHTML='';
+}
+function verifyStu(){
+  const room=document.getElementById('roomIn').value.trim();
+  const dorm=(document.getElementById('dormSel')?.value||'');
+  const barcode=(document.getElementById('bInput')?.value||'').trim()||('TH'+Date.now().toString().slice(-8));
+  const carrier=document.getElementById('carrierSel').value;
+  if(!dorm){toast(lang==='th'?'กรุณาเลือกหอพัก':'Please select a dormitory.','warn');return;}
+  if(!room){toast(lang==='th'?'กรุณากรอกหมายเลขห้อง':'Please enter a room number.','warn');return;}
+  const stu=load(KEYS.students).find(s=>s.room.toUpperCase()===room.toUpperCase()&&s.dorm===dorm);
+  if(!stu){
+    toast('❌ '+(lang==='th'?'ไม่พบนักศึกษาในหอ '+dorm+' ห้อง '+room:'No student in '+dorm+' room '+room),'err');
+    document.getElementById('prevEmpty').style.display='block';
+    document.getElementById('prevCard').style.display='none';return;
+  }
+  scannedData={stu,room:stu.room,dorm:stu.dorm,barcode,carrier};
+  document.getElementById('prevEmpty').style.display='none';
+  document.getElementById('prevCard').style.display='block';
+  document.getElementById('prevInit').textContent=stu.name.charAt(0).toUpperCase();
+  document.getElementById('prevRows').innerHTML=`
+    <div class="prevrow"><span class="pk">${t('scan.preview.tracking')}</span><span class="pv">${esc(barcode)}</span></div>
+    <div class="prevrow"><span class="pk">${t('scan.preview.carrier')}</span><span class="pv">${esc(carrier)}</span></div>
+    <div class="prevrow"><span class="pk">${t('scan.preview.recipient')}</span><span class="pv">${esc(stu.name)}</span></div>
+    <div class="prevrow"><span class="pk">${t('scan.preview.room')}</span><span class="pv">${esc(stu.room)}</span></div>
+    <div class="prevrow"><span class="pk">${t('scan.preview.dorm')}</span><span class="pv">${esc(stu.dorm)}</span></div>
+    <div class="prevrow"><span class="pk">${t('scan.preview.email')}</span><span class="pv" style="font-size:11px">${esc(stu.email)}</span></div>`;
+  toast('✅ '+(lang==='th'?'ตรวจสอบแล้ว: '+stu.name:'Student verified: '+stu.name),'ok');
+}
+function confirmParcel(){
+  if(!scannedData){toast(lang==='th'?'กรุณาตรวจสอบนักศึกษาก่อน':'Please verify student first.','warn');return;}
+  const {stu,room,barcode,carrier}=scannedData;
+  const timeNow=nowTime();
+  const parcels=load(KEYS.parcels);
+  const dormStr=stu.dorm||'';
+  parcels.unshift({id:nextId('P',parcels),tracking:barcode,carrier,room,dorm:dormStr,student:stu.name,time:timeNow,pickedUp:false,date:today()});
+  save(KEYS.parcels,parcels);
+  logAct('Parcel Scanned',barcode+' → '+stu.name+' ('+room+')','<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M12 3v18M3 8l9 5 9-5"/></svg>','#dbeafe');
+  addNotif('<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z"/><path d="M12 3v18M3 8l9 5 9-5"/></svg>','Parcel '+barcode+' delivered to '+stu.name+' ('+room+')');
+  const msg=t('notif.parcel');
+  toast('📲 Notification sent to '+stu.name,'ok');
+  setTimeout(()=>toast('💬 "'+msg+'"','info'),800);
+  // Reset form
+  document.getElementById('prevCard').style.display='none';
+  document.getElementById('prevEmpty').style.display='block';
+  const bi=document.getElementById('bInput');if(bi)bi.value='';
+  document.getElementById('roomIn').value='';
+  const ds=document.getElementById('dormSel');if(ds)ds.value='';
+  document.getElementById('bRes').style.display='none';
+  document.getElementById('roomHint').innerHTML='';
+  const ip=document.getElementById('imgPrev');if(ip)ip.style.display='none';
+  const pr=document.getElementById('photoRes');if(pr)pr.style.display='none';
+  const pe=document.getElementById('photoErr');if(pe)pe.style.display='none';
+  const iu=document.getElementById('imgUp');if(iu)iu.value='';
+  scannedData=null;
+  updateBadges();renderScanHist();renderStats();renderOvTables();
+}
+function renderScanHist(){
+  const b=document.getElementById('scanHist');if(!b)return;
+  const parcels=load(KEYS.parcels);
+  const waiting=parcels.filter(p=>!p.pickedUp).length;
+  const cnt=document.getElementById('todayCnt');
+  if(cnt)cnt.textContent=waiting+t('waiting');
+  if(!parcels.length){b.innerHTML=`<tr><td colspan="5" style="text-align:center;color:var(--g400);padding:20px">${t('no.parcels')}</td></tr>`;return;}
+  b.innerHTML=parcels.slice(0,20).map(p=>`
+    <tr>
+      <td style="font-family:var(--fm);font-size:12px">${esc(p.tracking)}</td>
+      <td><strong>${p.dorm?esc(p.dorm)+' — ':''}${esc(p.room)}</strong></td>
+      <td>${esc(p.carrier)}</td>
+      <td style="font-family:var(--fm);font-size:12px">${p.time}</td>
+      <td>${p.pickedUp
+        ?`<span class="bdg bcomp">${t('pickup.done')}</span>`
+        :`<button class="btn btn-xs by" onclick="markPickup('${p.id}')">${t('btn.mark_pickup')}</button>`}</td>
+    </tr>`).join('');
+}
+function markPickup(id){
+  const parcels=load(KEYS.parcels);const p=parcels.find(x=>x.id===id);if(!p)return;
+  p.pickedUp=true;save(KEYS.parcels,parcels);
+  logAct('Parcel Picked Up','Tracking '+p.tracking+' collected from room '+p.room,'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>','#d1fae5');
+  addNotif('<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>','Parcel '+p.tracking+' picked up ('+p.room+')');
+  toast('✅ Parcel marked as picked up.','ok');
+  updateBadges();renderScanHist();renderStats();renderOvTables();
+}
+
+// ════════════════════════════════════════════════════
+// REPAIRS
+// ════════════════════════════════════════════════════
+function stBadge(s){
+  const m={'Pending':'bpend','In Progress':'bprog','Completed':'bcomp'};
+  const labels={'Pending':t('rep.status.pending'),'In Progress':t('rep.status.inprogress'),'Completed':t('rep.status.completed')};
+  return`<span class="bdg ${m[s]||'binfo'}">${labels[s]||esc(s)}</span>`;
+}
+function renderRepairs(){
+  const b=document.getElementById('repBody');if(!b)return;
+  let list=load(KEYS.repairs);
+  const fil=(document.getElementById('repFil')?.value||'');
+  const q=(document.getElementById('repSrch')?.value||'').toLowerCase();
+  if(fil)list=list.filter(r=>r.status===fil);
+  if(q)list=list.filter(r=>[r.studentName,r.room,r.cat,r.desc].some(x=>x.toLowerCase().includes(q)));
+  if(!list.length){b.innerHTML=`<tr><td colspan="8" style="text-align:center;color:var(--g400);padding:28px">${t('no.repairs')}</td></tr>`;return;}
+  b.innerHTML=list.map(r=>`
+    <tr>
+      <td style="font-family:var(--fm);font-size:11px;color:var(--g400)">${esc(r.id)}</td>
+      <td><strong>${esc(r.studentName.split(' ')[0])}</strong><br>
+        <span style="font-size:11px;color:var(--g400)">${esc(r.studentName.split(' ').slice(1).join(' '))}</span></td>
+      <td><div style='font-size:11px;color:var(--g400)'>${esc(r.dorm||'')}</div><strong>${esc(r.room)}</strong></td>
+      <td><span class="bdg binfo">${esc(r.cat)}</span></td>
+      <td style="max-width:150px;font-size:12.5px;color:var(--g600)">${esc(r.desc.length>44?r.desc.slice(0,44)+'…':r.desc)}</td>
+      <td>${r.photo?`<img src="${esc(r.photo)}" class="phthumb" onclick="openPhM('${esc(r.photo)}','${esc(r.id)}')" alt="photo"/>`:
+        '<span style="color:var(--g400)">—</span>'}</td>
+      <td>
+        <select class="stsel" onchange="updRepair('${r.id}',this.value)">
+          <option value="Pending"${r.status==='Pending'?' selected':''}>${t('rep.status.pending')}</option>
+          <option value="In Progress"${r.status==='In Progress'?' selected':''}>${t('rep.status.inprogress')}</option>
+          <option value="Completed"${r.status==='Completed'?' selected':''}>${t('rep.status.completed')}</option>
+        </select>
+      </td>
+      <td style="display:flex;gap:5px;flex-wrap:wrap">
+        <button class="btn bo btn-sm" onclick="viewRepair('${r.id}')" style="display:inline-flex;align-items:center;gap:4px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>${t('btn.view')}</button>
+        <button class="btn br btn-sm" onclick="deleteRepair('${r.id}')" style="display:inline-flex;align-items:center;padding:5px 8px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg></button>
+      </td>
+    </tr>`).join('');
+}
+function updRepair(id,status){
+  const repairs=load(KEYS.repairs);const r=repairs.find(x=>x.id===id);if(!r)return;
+  r.status=status;save(KEYS.repairs,repairs);
+  logAct('Repair Status Updated',id+' → '+status+' ('+r.studentName+', '+r.room+')','<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>','#fef3c7');
+  addNotif('<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>','Repair '+id+' status → '+status+' ('+r.studentName+')');
+  const ico={'Pending':'⏳','In Progress':'🔄','Completed':'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'};
+  toast((ico[status]||'')+' Repair '+id+' updated to '+status,'ok');
+  updateBadges();renderRepairs();renderStats();renderOvTables();
+}
+let curRepairId=null;
+function viewRepair(id){
+  const r=load(KEYS.repairs).find(x=>x.id===id);if(!r)return;
+  curRepairId=id;
+  document.getElementById('mRepairTitle').textContent=(lang==='th'?'รายละเอียดการซ่อมแซม — ':'Repair Detail — ')+r.id;
+  const catLabel=t('rep.form.category');
+  const stuLabel=t('th.student');
+  const roomLabel=t('th.room');
+  const descLabel=lang==='th'?'รายละเอียด':'Description';
+  const photoLabel=lang==='th'?'รูปภาพประกอบ':'Photo Evidence';
+  const curStatLabel=t('rep.current_status');
+  const updStatLabel=t('rep.update_status');
+  const dateLabel=lang==='th'?'วันที่แจ้ง':'Date Submitted';
+  const idLabel=lang==='th'?'รหัสคำขอ':'Repair ID';
+  const dormLabel=lang==='th'?'หอพัก':'Dormitory';
+  document.getElementById('mRepairContent').innerHTML=`
+    <div class="frow">
+      <div class="fg"><label>${idLabel}</label>
+        <div style="font-family:var(--fm);padding:9px;background:var(--g50);border-radius:8px;font-size:13px">${esc(r.id)}</div></div>
+      <div class="fg"><label>${dateLabel}</label>
+        <div style="font-family:var(--fm);padding:9px;background:var(--g50);border-radius:8px;font-size:13px">${esc(r.date)}</div></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>${stuLabel}</label>
+        <div style="padding:9px;background:var(--g50);border-radius:8px;font-weight:600">${esc(r.studentName)}</div></div>
+      <div class="fg"><label>${dormLabel}</label>
+        <div style="padding:9px;background:var(--g50);border-radius:8px;font-weight:600">${esc(r.dorm||'-')}</div></div>
+    </div>
+    <div class="fg"><label>${roomLabel}</label>
+      <div style="padding:9px;background:var(--g50);border-radius:8px;font-weight:600;font-family:var(--fm)">${esc(r.room)}</div></div>
+    <div class="fg"><label>${catLabel}</label>
+      <div style="padding:9px;background:var(--g50);border-radius:8px">${esc(r.cat)}</div></div>
+    <div class="fg"><label>${descLabel}</label>
+      <div style="padding:11px;background:var(--g50);border-radius:8px;line-height:1.6;font-size:13.5px">${esc(r.desc)}</div></div>
+    ${r.photo?`<div class="fg"><label>${photoLabel}</label>
+      <img src="${esc(r.photo)}" style="width:100%;border-radius:10px;margin-top:5px;cursor:pointer"
+           onclick="openPhM('${esc(r.photo)}','${esc(r.id)}')" alt="evidence"/></div>`:''}
+    <div class="fg"><label>${curStatLabel}</label><br>${stBadge(r.status)}</div>
+    <div class="fg"><label>${updStatLabel}</label>
+      <select class="fc" id="mRepSel">
+        <option value="Pending"${r.status==='Pending'?' selected':''}>${t('rep.status.pending')}</option>
+        <option value="In Progress"${r.status==='In Progress'?' selected':''}>${t('rep.status.inprogress')}</option>
+        <option value="Completed"${r.status==='Completed'?' selected':''}>${t('rep.status.completed')}</option>
+      </select>
+    </div>`;
+  openM('mRepair');
+}
+function saveRepairModal(){
+  if(!curRepairId)return;
+  const sel=document.getElementById('mRepSel');if(!sel)return;
+  updRepair(curRepairId,sel.value);
+  closeM('mRepair');
+}
+function deleteRepair(id){
+  const r=load(KEYS.repairs).find(x=>x.id===id);if(!r)return;
+  const msg=t('confirm.delete.repair').replace('{id}',id).replace('{name}',r.studentName);
+  cf('<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>',lang==='th'?'ลบคำขอซ่อมแซม':'Delete Repair Request',msg,()=>{
+    save(KEYS.repairs,load(KEYS.repairs).filter(x=>x.id!==id));
+    logAct('Repair Deleted',id+' ('+r.studentName+')','<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>','#fee2e2');
+    toast(lang==='th'?'ลบคำขอซ่อมแซมแล้ว':'Repair request deleted.','warn');
+    updateBadges();renderRepairs();renderStats();
+  });
+}
+function openRepairForm(){
+  const students=load(KEYS.students);
+  if(!students.length){toast(lang==='th'?'ยังไม่มีนักศึกษาในระบบ กรุณาเพิ่มนักศึกษาก่อน':'No students registered yet. Add students first.','warn');return;}
+  const sel=document.getElementById('rStuId');
+  sel.innerHTML=students.map(s=>`<option value="${s.id}">${esc(s.name)} — ${esc(s.room)}</option>`).join('');
+  document.getElementById('rDesc').value='';
+  document.getElementById('rPhoto').value='';
+  document.getElementById('rDate').value=today();
+  document.getElementById('rCat').selectedIndex=0;
+  openM('mRepairForm');
+}
+function submitRepair(){
+  const stuId=document.getElementById('rStuId').value;
+  const cat=document.getElementById('rCat').value;
+  const desc=document.getElementById('rDesc').value.trim();
+  const photo=document.getElementById('rPhoto').value.trim();
+  const date=document.getElementById('rDate').value;
+  if(!desc){toast(lang==='th'?'กรุณาอธิบายปัญหา':'Please describe the issue.','warn');return;}
+  if(!date){toast(lang==='th'?'กรุณาเลือกวันที่':'Please select a date.','warn');return;}
+  const stu=load(KEYS.students).find(s=>s.id===stuId);
+  if(!stu){toast(lang==='th'?'ไม่พบข้อมูลนักศึกษา':'Student not found.','err');return;}
+  const repairs=load(KEYS.repairs);
+  const newR={
+    id:nextId('R',repairs),studentId:stu.id,studentName:stu.name,
+    room:stu.room,dorm:stu.dorm||'',cat,desc,
+    photo:photo||'https://placehold.co/400x280/e2e8f0/475569?text=No+Photo',
+    status:'Pending',date
+  };
+  repairs.unshift(newR);save(KEYS.repairs,repairs);
+  logAct('Repair Submitted',newR.id+' – '+cat+' ('+stu.name+', '+stu.room+')','<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>','#fef3c7');
+  addNotif('<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>','New repair request '+newR.id+' — '+cat+' by '+stu.name);
+  toast(lang==='th'?'✅ ส่งคำขอซ่อมแซมแล้ว':'✅ Repair request submitted.','ok');
+  closeM('mRepairForm');
+  updateBadges();renderRepairs();renderStats();
+}
+
+// ════════════════════════════════════════════════════
+// ANNOUNCEMENTS
+// ════════════════════════════════════════════════════
+function publishAnn(){
+  const title=document.getElementById('annTitle').value.trim();
+  const desc=document.getElementById('annDesc').value.trim();
+  const dorm=document.getElementById('annDorm').value;
+  const date=document.getElementById('annDate').value;
+  const eid=document.getElementById('editAnnId').value;
+  if(!title){toast(lang==='th'?'กรุณากรอกหัวข้อ':'Please enter a title.','warn');return;}
+  if(!desc){toast(lang==='th'?'กรุณากรอกรายละเอียด':'Please enter a description.','warn');return;}
+  if(!date){toast(lang==='th'?'กรุณาเลือกวันที่':'Please select a date.','warn');return;}
+  const anns=load(KEYS.announcements);
+  if(eid){
+    const a=anns.find(x=>x.id===eid);
+    if(a)Object.assign(a,{title,desc,dorm,date});
+    save(KEYS.announcements,anns);
+    logAct('Announcement Edited','Edited: '+title,'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>','#d1fae5');
+    toast(lang==='th'?'📢 อัปเดตประกาศแล้ว':'📢 Announcement updated!','ok');
+  }else{
+    anns.unshift({id:nextId('AN',anns),title,desc,dorm,date,by:adminCfg.name});
+    save(KEYS.announcements,anns);
+    logAct('Announcement Published','Published: '+title,'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>','#d1fae5');
+    addNotif('<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>','New announcement: '+title+' ('+dorm+')');
+    toast(lang==='th'?'📢 เผยแพร่ประกาศแล้ว':'📢 Published to students!','ok');
+  }
+  resetAnnForm();renderAnnouncements();
+}
+function editAnn(id){
+  const a=load(KEYS.announcements).find(x=>x.id===id);if(!a)return;
+  document.getElementById('editAnnId').value=id;
+  document.getElementById('annTitle').value=a.title;
+  document.getElementById('annDesc').value=a.desc;
+  document.getElementById('annDorm').value=a.dorm;
+  document.getElementById('annDate').value=a.date;
+  document.getElementById('annFormTitle').textContent=lang==='th'?'แก้ไขประกาศ':'Edit Announcement';
+  document.getElementById('annTitle').focus();
+  document.getElementById('annFormTitle').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function deleteAnn(id){
+  const a=load(KEYS.announcements).find(x=>x.id===id);if(!a)return;
+  const msg=t('confirm.delete.ann').replace('{title}',a.title);
+  cf('<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>',lang==='th'?'ลบประกาศ':'Delete Announcement',msg,()=>{
+    save(KEYS.announcements,load(KEYS.announcements).filter(x=>x.id!==id));
+    logAct('Announcement Deleted','Deleted: '+a.title,'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>','#fee2e2');
+    toast(lang==='th'?'ลบประกาศแล้ว':'Announcement deleted.','warn');
+    renderAnnouncements();
+  });
+}
+function resetAnnForm(){
+  document.getElementById('editAnnId').value='';
+  document.getElementById('annTitle').value='';
+  document.getElementById('annDesc').value='';
+  document.getElementById('annDorm').value='All Dormitories';
+  document.getElementById('annDate').value=today();
+  document.getElementById('annFormTitle').textContent=t('ann.form.title');
+}
+function renderAnnouncements(){
+  const el=document.getElementById('annList');if(!el)return;
+  const list=load(KEYS.announcements);
+  const cnt=document.getElementById('annCnt');if(cnt)cnt.textContent=list.length;
+  if(!list.length){
+    el.innerHTML=`<div class="emptybox"><div class="eico" style="font-size:0"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--g300)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div><p>${t('ann.empty')}</p></div>`;
+    return;
+  }
+  el.innerHTML=list.map(a=>`
+    <div class="anncard">
+      <div class="anndot"></div>
+      <div class="annbody">
+        <div class="anntitle">${esc(a.title)}</div>
+        <div class="annmeta">${esc(a.date)} · <span class="bdg binfo" style="font-size:10px;padding:2px 7px">${esc(a.dorm)}</span> · By ${esc(a.by)}</div>
+        <div class="anndesc">${esc(a.desc)}</div>
+        <div class="annact">
+          <button class="btn bo btn-sm" onclick="editAnn('${a.id}')" style="display:inline-flex;align-items:center;gap:4px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>${t('btn.edit')}</button>
+          <button class="btn br btn-sm" onclick="deleteAnn('${a.id}')" style="display:inline-flex;align-items:center;gap:4px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>${t('btn.delete')}</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════════════
+// STUDENTS
+// ════════════════════════════════════════════════════
+function renderStudents(){
+  const b=document.getElementById('stuBody');if(!b)return;
+  let list=load(KEYS.students);
+  const q=(document.getElementById('stuSrch')?.value||'').toLowerCase();
+  const dormFil=(document.getElementById('stuDormFil')?.value||'');
+  if(q)list=list.filter(s=>[s.name,s.room,s.email,s.dorm,s.id].some(x=>(x||'').toLowerCase().includes(q)));
+  if(dormFil)list=list.filter(s=>s.dorm===dormFil);
+  if(!list.length){b.innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--g400);padding:28px">${t('no.students')}</td></tr>`;return;}
+  b.innerHTML=list.map(s=>`
+    <tr>
+      <td style="font-family:var(--fm);font-size:12px;color:var(--g400)">${esc(s.id)}</td>
+      <td><strong>${esc(s.name)}</strong></td>
+      <td style="font-family:var(--fm);font-weight:600">${esc(s.room)}</td>
+      <td><span class="bdg binfo">${esc(s.dorm)}</span></td>
+      <td style="font-size:12.5px">${esc(s.email)}</td>
+      <td style="display:flex;gap:5px">
+        <button class="btn bo btn-sm" onclick="openStudentForm('${s.id}')">Edit</button>
+        <button class="btn br btn-sm" onclick="deleteStu('${s.id}')">Delete</button>
+      </td>
+    </tr>`).join('');
+}
+function openStudentForm(id){
+  const students=load(KEYS.students);
+  if(id){
+    const s=students.find(x=>x.id===id);if(!s)return;
+    document.getElementById('editStuId').value=id;
+    document.getElementById('sName').value=s.name;
+    document.getElementById('sRoom').value=s.room;
+    document.getElementById('sEmail').value=s.email;
+    document.getElementById('sDorm').value=s.dorm;
+    document.getElementById('sStuId').value=s.id;
+    document.getElementById('mStuTitle').textContent=lang==='th'?'แก้ไขข้อมูลนักศึกษา':'Edit Student';
+  }else{
+    document.getElementById('editStuId').value='';
+    document.getElementById('sName').value='';
+    document.getElementById('sRoom').value='';
+    document.getElementById('sEmail').value='';
+    document.getElementById('sDorm').value='';
+    document.getElementById('sStuId').value='';
+    document.getElementById('mStuTitle').textContent=lang==='th'?'เพิ่มนักศึกษา':'Add Student';
+  }
+  openM('mStudent');
+}
+function saveStudent(){
+  const name=document.getElementById('sName').value.trim();
+  const room=document.getElementById('sRoom').value.trim().toUpperCase();
+  const email=document.getElementById('sEmail').value.trim();
+  const dorm=document.getElementById('sDorm').value;
+  const stuId=document.getElementById('sStuId').value.trim();
+  const eid=document.getElementById('editStuId').value;
+  // Validation
+  if(!name){toast(lang==='th'?'กรุณากรอกชื่อนักศึกษา':'Please enter the student\'s name.','warn');return;}
+  if(!stuId){toast(lang==='th'?'กรุณากรอกรหัสนักศึกษา':'Please enter the Student ID.','warn');return;}
+  if(!room){toast(lang==='th'?'กรุณากรอกหมายเลขห้อง':'Please enter a room number.','warn');return;}
+  if(!valEmail(email)){toast(lang==='th'?'กรุณากรอกอีเมลให้ถูกต้อง':'Please enter a valid email address.','warn');return;}
+  if(!dorm){toast(lang==='th'?'กรุณาเลือกหอพัก':'Please select a dormitory building.','warn');return;}
+  const students=load(KEYS.students);
+  if(eid){
+    // Edit existing
+    const s=students.find(x=>x.id===eid);if(!s){toast('Student not found.','err');return;}
+    if(students.find(x=>x.room===room&&x.dorm===dorm&&x.id!==eid)){toast((lang==='th'?'หอ '+dorm+' ห้อง '+room+' มีนักศึกษาอยู่แล้ว':dorm+' room '+room+' is already assigned.'),'err');return;}
+    if(stuId!==eid&&students.find(x=>x.id===stuId)){toast((lang==='th'?'รหัสนักศึกษา '+stuId+' มีอยู่แล้ว':'Student ID '+stuId+' is already in use.'),'err');return;}
+    Object.assign(s,{id:stuId,name,room,email,dorm});
+    save(KEYS.students,students);
+    logAct('Student Updated',name+' ('+room+') ID:'+stuId,'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>','#ede9fe');
+    toast(lang==='th'?'✅ อัปเดตข้อมูลนักศึกษาแล้ว':'✅ Student updated.','ok');
+  }else{
+    // Add new
+    if(students.find(s=>s.id===stuId)){toast((lang==='th'?'รหัสนักศึกษา '+stuId+' มีอยู่แล้ว':'Student ID '+stuId+' is already registered.'),'err');return;}
+    if(students.find(s=>s.room===room&&s.dorm===dorm)){toast((lang==='th'?'หอ '+dorm+' ห้อง '+room+' มีนักศึกษาอยู่แล้ว':dorm+' room '+room+' already has a registered student.'),'err');return;}
+    if(students.find(s=>s.email.toLowerCase()===email.toLowerCase())){toast((lang==='th'?'อีเมลนี้ถูกใช้แล้ว':'This email is already registered.'),'err');return;}
+    const newS={id:stuId,name,room,email,dorm};
+    students.push(newS);save(KEYS.students,students);
+    logAct('Student Added',name+' ID:'+stuId+' – '+room+' ('+dorm+')','<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>','#ede9fe');
+    addNotif('<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>','New student: '+name+' ('+stuId+') – '+room);
+    toast(lang==='th'?'✅ เพิ่มนักศึกษา '+name+' แล้ว':'✅ Student '+name+' added successfully.','ok');
+  }
+  closeM('mStudent');renderStudents();renderStats();updateBadges();
+}
+function deleteStu(id){
+  const s=load(KEYS.students).find(x=>x.id===id);if(!s)return;
+  const msg=t('confirm.delete.student').replace('{name}',s.name).replace('{room}',s.room);
+  cf('<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>',lang==='th'?'ลบนักศึกษา':'Delete Student',msg,()=>{
+    save(KEYS.students,load(KEYS.students).filter(x=>x.id!==id));
+    logAct('Student Deleted',s.name+' ('+s.room+')','<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>','#fee2e2');
+    toast(lang==='th'?'ลบนักศึกษา '+s.name+' แล้ว':'Student '+s.name+' removed.','warn');
+    renderStudents();renderStats();updateBadges();
+  });
+}
+
+// ════════════════════════════════════════════════════
+// AUDIT LOG
+// ════════════════════════════════════════════════════
+function logAct(action,detail,icon,color){
+  const logs=load(KEYS.audit);
+  logs.unshift({time:nowTime(),admin:adminCfg.name,action,detail,icon:icon||'📋',color:color||'#f1f5f9'});
+  save(KEYS.audit,logs.slice(0,300));
+  if(document.getElementById('pg-audit')?.classList.contains('on'))renderAudit();
+}
+function renderAudit(){
+  const el=document.getElementById('auList');if(!el)return;
+  const q=(document.getElementById('auSrch')?.value||'').toLowerCase();
+  const f=(document.getElementById('auFil')?.value||'').toLowerCase();
+  let list=load(KEYS.audit);
+  if(q)list=list.filter(l=>[l.action,l.detail,l.admin].some(x=>x.toLowerCase().includes(q)));
+  if(f)list=list.filter(l=>l.action.toLowerCase().includes(f));
+  const cnt=document.getElementById('auCnt');if(cnt)cnt.textContent=list.length;
+  if(!list.length){el.innerHTML=`<div style="padding:28px;text-align:center;color:var(--g400)">${t('no.audit')}</div>`;return;}
+  el.innerHTML=list.map(l=>`
+    <div class="aurow">
+      <div class="auico" style="background:${l.color}">${l.icon}</div>
+      <div class="aubody">
+        <div class="auact">${esc(l.action)}</div>
+        <div class="audtl">${esc(l.detail)}</div>
+      </div>
+      <div class="autime">${l.time} · ${esc(l.admin)}</div>
+    </div>`).join('');
+}
+function clearAudit(){
+  cf('<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>',lang==='th'?'ล้างบันทึกกิจกรรม':'Clear Audit Log',t('confirm.clear.log'),()=>{
+    save(KEYS.audit,[]);renderAudit();
+    toast(lang==='th'?'ล้างบันทึกกิจกรรมแล้ว':'Audit log cleared.','warn');
+  });
+}
+
+// ════════════════════════════════════════════════════
+// SETTINGS
+// ════════════════════════════════════════════════════
+function syncSettingsPage(){
+  document.getElementById('stName').value=adminCfg.name;
+  document.getElementById('stEmail').value=adminCfg.email;
+  document.getElementById('paName').textContent=adminCfg.name;
+  document.getElementById('paEmail').textContent=adminCfg.email;
+  const roleEl=document.getElementById('stRole');
+  if(roleEl&&adminCfg.role)roleEl.value=adminCfg.role;
+  updateHeaderAvatar();
+}
+function updateHeaderAvatar(){
+  const el=document.getElementById('havt');
+  if(adminCfg.photo){el.innerHTML=`<img src="${adminCfg.photo}" alt="avatar"/>`;}
+  else{el.textContent=adminCfg.name.charAt(0).toUpperCase();}
+  const pb=document.getElementById('paBig');if(!pb)return;
+  if(adminCfg.photo){pb.innerHTML=`<img src="${adminCfg.photo}" alt="avatar"/>`;}
+  else{pb.textContent=adminCfg.name.charAt(0).toUpperCase();}
+}
+function prevPhoto(e){
+  const f=e.target.files[0];if(!f)return;
+  if(!f.type.startsWith('image/')){toast('Please select an image file.','warn');return;}
+  const reader=new FileReader();
+  reader.onload=ev=>{adminCfg.photo=ev.target.result;saveAdminCfg();updateHeaderAvatar();toast('Profile photo updated.','ok');};
+  reader.readAsDataURL(f);
+}
+function pwStr(){
+  const p=document.getElementById('npw').value;const el=document.getElementById('pwS');
+  if(!p){el.innerHTML='';return;}
+  let sc=0,h=[];
+  if(p.length>=6)sc++;else h.push('6+ chars');
+  if(/[A-Z]/.test(p))sc++;else h.push('uppercase letter');
+  if(/[a-z]/.test(p))sc++;else h.push('lowercase letter');
+  if(/[0-9]/.test(p))sc++;else h.push('number');
+  if(/[^A-Za-z0-9]/.test(p))sc++;
+  const ls=['','Weak','Fair','Good','Strong','Very Strong'];
+  const cs=['','#ef4444','#f59e0b','#3b82f6','#10b981','#10b981'];
+  el.innerHTML=`<span style="color:${cs[sc]};font-weight:600">${ls[sc]||'Weak'}</span>`+(h.length?' · needs: '+h.join(', '):'  ✓ Strong password');
+}
+function saveProfile(){
+  const name=document.getElementById('stName').value.trim();
+  const email=document.getElementById('stEmail').value.trim();
+  const role=document.getElementById('stRole').value;
+  if(!name){toast('Name cannot be empty.','warn');return;}
+  if(!valEmail(email)){toast('Please enter a valid email address.','warn');return;}
+  adminCfg.name=name;adminCfg.email=email;adminCfg.role=role;
+  saveAdminCfg();
+  document.getElementById('paName').textContent=name;
+  document.getElementById('paEmail').textContent=email;
+  updateHeaderAvatar();
+  logAct('Profile Updated','Admin profile saved ('+email+')','<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>','#ede9fe');
+  toast('Profile saved! ✅','ok');
+}
+function changePw(){
+  const c=document.getElementById('cpw').value;
+  const n=document.getElementById('npw').value;
+  const cf2=document.getElementById('cpw2').value;
+  if(c!==adminCfg.pw){toast('Current password is incorrect.','err');return;}
+  if(!valPw(n)){toast('New password: 6+ chars, uppercase, lowercase & number.','warn');return;}
+  if(n!==cf2){toast('Passwords do not match.','err');return;}
+  adminCfg.pw=n;saveAdminCfg();
+  logAct('Password Changed','Admin password updated','<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>','#ede9fe');
+  toast('Password updated! 🔐','ok');
+  ['cpw','npw','cpw2'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pwS').innerHTML='';
+}
+
+// ════════════════════════════════════════════════════
+// LANGUAGE — Full EN / TH translation system
+// ════════════════════════════════════════════════════
+let lang = localStorage.getItem('mfu_lang') || 'en';
+
+const T = {
+  en: {
+    // NAV
+    'nav.overview':'Dashboard','nav.scan':'Scan Parcel','nav.repairs':'Repairs',
+    'nav.announce':'Announcements','nav.students':'Students','nav.audit':'Audit Log',
+    'nav.settings':'Settings','nav.logout':'Logout',
+    // HEADER / PAGES
+    'pg.overview.title':'Dashboard Overview','pg.overview.sub':'Live snapshot of dormitory operations',
+    'pg.scan.title':'Scan Parcel + Notify','pg.scan.sub':'Scan barcode, verify recipient, send notification',
+    'pg.repairs.title':'Manage Repairs','pg.repairs.sub':'Review and update student repair requests',
+    'pg.announce.title':'Announcements','pg.announce.sub':'Create and manage announcements for students',
+    'pg.students.title':'Student Management','pg.students.sub':'Manage registered dormitory students',
+    'pg.audit.title':'Audit Log','pg.audit.sub':'Full system activity history',
+    'pg.settings.title':'Settings','pg.settings.sub':'Admin profile and preferences',
+    // STATS
+    'stat.parcels':'Parcels Today','stat.pending':'Pending Repairs','stat.progress':'In Progress',
+    'stat.completed':'Completed','stat.students':'Total Students',
+    'stat.sub.parcels':'scanned today','stat.sub.pending':'need attention',
+    'stat.sub.progress':'being worked on','stat.sub.completed':'this semester','stat.sub.students':'registered',
+    // BUTTONS
+    'btn.refresh':'Refresh','btn.viewall':'View All','btn.add_student':'Add Student',
+    'btn.new_request':'New Request','btn.publish':'Publish','btn.cancel':'Cancel',
+    'btn.clear_log':'Clear Log','btn.save_profile':'Save Profile','btn.update_pw':'Update Password',
+    'btn.start_cam':'Start Camera','btn.stop_cam':'Stop','btn.choose_photo':'Choose / Take Photo',
+    'btn.verify':'Verify Student','btn.confirm_send':'Confirm & Send Notification',
+    'btn.mark_pickup':'Mark Pickup','btn.submit_repair':'Submit Request',
+    'btn.save_student':'Save Student','btn.edit':'Edit','btn.delete':'Delete',
+    'btn.view':'View','btn.update_status':'Update Status','btn.clear_all':'Clear all',
+    // SCAN
+    'scan.tab.photo':'Photo','scan.tab.live':'Live Cam','scan.tab.manual':'Manual',
+    'scan.step1':'Scan Barcode','scan.step2':'Room & Carrier','scan.step3':'Verify & Confirm',
+    'scan.drop':'Click or drag & drop a barcode / QR image',
+    'scan.drop.sub':'Works offline — JPG, PNG supported',
+    'scan.cam.hint':'Click to Start Camera','scan.cam.req':'Requires localhost or https',
+    'scan.cam.blocked':'Camera blocked — use Photo or Manual tab instead',
+    'scan.manual.label':'Tracking Number','scan.manual.ex':'e.g. TH12356789, FX99182736',
+    'scan.room.label':'Room Number','scan.carrier.label':'Carrier',
+    'scan.empty':'Scan or enter a parcel to see recipient details',
+    'scan.preview':'Parcel Preview','scan.today':'Scanned Today',
+    'scan.preview.tracking':'Tracking No.','scan.preview.carrier':'Carrier',
+    'scan.preview.recipient':'Recipient','scan.preview.room':'Room',
+    'scan.preview.dorm':'Dormitory','scan.preview.email':'Email',
+    // TABLE HEADERS
+    'th.tracking':'Tracking','th.room':'Room','th.carrier':'Carrier','th.status':'Status',
+    'th.student':'Student','th.category':'Category','th.id':'ID',
+    'th.description':'Description','th.photo':'Photo','th.actions':'Actions','th.time':'Time',
+    // REPAIRS
+    'rep.status.pending':'Pending','rep.status.inprogress':'In Progress','rep.status.completed':'Completed',
+    'rep.filter.all':'All Status','rep.search':'Search...',
+    'rep.cat.electrical':'Electrical','rep.cat.plumbing':'Plumbing','rep.cat.furniture':'Furniture',
+    'rep.cat.internet':'Internet','rep.cat.ac':'Air Conditioning','rep.cat.other':'Other',
+    'rep.form.student':'Student','rep.form.category':'Category','rep.form.date':'Date',
+    'rep.form.desc':'Description','rep.form.photo':'Photo URL (optional)',
+    'rep.form.title':'New Repair Request','rep.current_status':'Current Status','rep.update_status':'Update Status',
+    // ANNOUNCE
+    'ann.form.title':'New Announcement','ann.form.title.label':'Title','ann.form.desc':'Description',
+    'ann.form.dorm':'Target Dormitory','ann.form.date':'Date',
+    'ann.list.title':'All Announcements',
+    'ann.dorm.all':'All Dormitories / ทุกหอพัก',
+    'ann.empty':'No announcements yet. Create one on the left.',
+    // STUDENTS
+    'stu.search':'Search name, room, ID...',
+    'stu.form.add':'Add Student','stu.form.edit':'Edit Student',
+    'stu.form.name':'Full Name','stu.form.id':'Student ID',
+    'stu.form.room':'Room Number','stu.form.email':'Email',
+    'stu.form.dorm':'Dormitory Building','stu.form.dorm.placeholder':'— Select Dormitory —',
+    'stu.th.id':'ID','stu.th.name':'Name','stu.th.room':'Room','stu.th.dorm':'Dormitory','stu.th.email':'Email',
+    // AUDIT
+    'audit.search':'Search...','audit.filter.all':'All Actions',
+    // SETTINGS
+    'set.profile.title':'Admin Profile','set.profile.click':'Click avatar to change photo',
+    'set.name':'Full Name','set.email':'Email','set.role':'Role',
+    'set.pw.title':'Change Password','set.pw.current':'Current Password',
+    'set.pw.new':'New Password','set.pw.confirm':'Confirm Password',
+    'set.lang.title':'Language / ภาษา','set.lang.sub':'Choose your preferred interface language.',
+    'set.danger.title':'Danger Zone','set.danger.sub':'Sign out from the admin dashboard.',
+    // NOTIF
+    'notif.panel.title':'Notifications','notif.parcel':'Your parcel has arrived. Please collect it at the dorm office.',
+    'notif.empty':'No notifications',
+    // CHARTS
+    'chart.parcels':'Parcels','chart.repairs':'Repairs','chart.resolved':'Resolved',
+    'chart.recent.parcels':'Recent Parcels','chart.recent.repairs':'Recent Repairs',
+    'chart.weekly':'Weekly Activity',
+    // MISC
+    'pickup.done':'Picked Up','scanned.today':'scanned today','waiting':' waiting',
+    'stu.dorm.all':'All Dormitories','no.students':'No students found','no.repairs':'No repair requests found',
+    'no.audit':'No activity found','no.parcels':'No parcels yet',
+    'confirm.delete.student':'Remove {name} ({room}) from the system? This cannot be undone.',
+    'confirm.delete.repair':'Delete repair {id} for {name}? This cannot be undone.',
+    'confirm.delete.ann':'Delete "{title}"? This cannot be undone.',
+    'confirm.clear.log':'Delete all activity history? This cannot be undone.',
+    'confirm.logout':'Are you sure you want to logout?',
+  },
+  th: {
+    // NAV
+    'nav.overview':'แดชบอร์ด','nav.scan':'สแกนพัสดุ','nav.repairs':'ซ่อมแซม',
+    'nav.announce':'ประกาศ','nav.students':'นักศึกษา','nav.audit':'บันทึกกิจกรรม',
+    'nav.settings':'ตั้งค่า','nav.logout':'ออกจากระบบ',
+    // HEADER / PAGES
+    'pg.overview.title':'ภาพรวมแดชบอร์ด','pg.overview.sub':'ข้อมูลการดำเนินงานหอพักแบบเรียลไทม์',
+    'pg.scan.title':'สแกนพัสดุ + แจ้งเตือน','pg.scan.sub':'สแกนบาร์โค้ด ตรวจสอบผู้รับ ส่งการแจ้งเตือน',
+    'pg.repairs.title':'จัดการการซ่อมแซม','pg.repairs.sub':'ตรวจสอบและอัปเดตคำขอซ่อมแซม',
+    'pg.announce.title':'ประกาศ','pg.announce.sub':'สร้างและจัดการประกาศสำหรับนักศึกษา',
+    'pg.students.title':'จัดการนักศึกษา','pg.students.sub':'จัดการข้อมูลนักศึกษาที่ลงทะเบียน',
+    'pg.audit.title':'บันทึกกิจกรรม','pg.audit.sub':'ประวัติการดำเนินงานระบบทั้งหมด',
+    'pg.settings.title':'ตั้งค่า','pg.settings.sub':'โปรไฟล์และการตั้งค่าของผู้ดูแล',
+    // STATS
+    'stat.parcels':'พัสดุวันนี้','stat.pending':'รอดำเนินการ','stat.progress':'กำลังดำเนินการ',
+    'stat.completed':'เสร็จสิ้น','stat.students':'นักศึกษาทั้งหมด',
+    'stat.sub.parcels':'สแกนวันนี้','stat.sub.pending':'ต้องดูแล',
+    'stat.sub.progress':'กำลังดำเนินงาน','stat.sub.completed':'ภาคการศึกษานี้','stat.sub.students':'ลงทะเบียนแล้ว',
+    // BUTTONS
+    'btn.refresh':'รีเฟรช','btn.viewall':'ดูทั้งหมด','btn.add_student':'เพิ่มนักศึกษา',
+    'btn.new_request':'คำขอใหม่','btn.publish':'เผยแพร่','btn.cancel':'ยกเลิก',
+    'btn.clear_log':'ล้าง Log','btn.save_profile':'บันทึกโปรไฟล์','btn.update_pw':'อัปเดตรหัสผ่าน',
+    'btn.start_cam':'เปิดกล้อง','btn.stop_cam':'หยุด','btn.choose_photo':'เลือก / ถ่ายรูป',
+    'btn.verify':'ตรวจสอบนักศึกษา','btn.confirm_send':'ยืนยัน & ส่งการแจ้งเตือน',
+    'btn.mark_pickup':'รับพัสดุแล้ว','btn.submit_repair':'ส่งคำขอ',
+    'btn.save_student':'บันทึก','btn.edit':'แก้ไข','btn.delete':'ลบ',
+    'btn.view':'ดูรายละเอียด','btn.update_status':'อัปเดตสถานะ','btn.clear_all':'ล้างทั้งหมด',
+    // SCAN
+    'scan.tab.photo':'ถ่ายรูป','scan.tab.live':'กล้องสด','scan.tab.manual':'พิมพ์เอง',
+    'scan.step1':'สแกนบาร์โค้ด','scan.step2':'ห้องและบริษัทขนส่ง','scan.step3':'ยืนยัน',
+    'scan.drop':'คลิกหรือลากรูปบาร์โค้ด / QR Code มาวาง',
+    'scan.drop.sub':'ใช้ได้แม้ออฟไลน์ — รองรับ JPG, PNG',
+    'scan.cam.hint':'คลิกเพื่อเปิดกล้อง','scan.cam.req':'ต้องใช้ localhost หรือ https',
+    'scan.cam.blocked':'กล้องถูกบล็อก — ใช้แท็บถ่ายรูปหรือพิมพ์เองแทน',
+    'scan.manual.label':'หมายเลข Tracking','scan.manual.ex':'เช่น TH12356789, FX99182736',
+    'scan.room.label':'หมายเลขห้อง','scan.carrier.label':'บริษัทขนส่ง',
+    'scan.empty':'สแกนหรือกรอกข้อมูลพัสดุเพื่อดูรายละเอียดผู้รับ',
+    'scan.preview':'ตัวอย่างพัสดุ','scan.today':'สแกนวันนี้',
+    'scan.preview.tracking':'หมายเลขพัสดุ','scan.preview.carrier':'บริษัทขนส่ง',
+    'scan.preview.recipient':'ผู้รับ','scan.preview.room':'ห้อง',
+    'scan.preview.dorm':'หอพัก','scan.preview.email':'อีเมล',
+    // TABLE HEADERS
+    'th.tracking':'หมายเลขพัสดุ','th.room':'ห้อง','th.carrier':'บริษัทขนส่ง','th.status':'สถานะ',
+    'th.student':'นักศึกษา','th.category':'ประเภท','th.id':'รหัส',
+    'th.description':'รายละเอียด','th.photo':'รูปภาพ','th.actions':'การดำเนินการ','th.time':'เวลา',
+    // REPAIRS
+    'rep.status.pending':'รอดำเนินการ','rep.status.inprogress':'กำลังดำเนินการ','rep.status.completed':'เสร็จสิ้น',
+    'rep.filter.all':'ทุกสถานะ','rep.search':'ค้นหา...',
+    'rep.cat.electrical':'ไฟฟ้า','rep.cat.plumbing':'ประปา','rep.cat.furniture':'เฟอร์นิเจอร์',
+    'rep.cat.internet':'อินเทอร์เน็ต','rep.cat.ac':'เครื่องปรับอากาศ','rep.cat.other':'อื่นๆ',
+    'rep.form.student':'นักศึกษา','rep.form.category':'ประเภท','rep.form.date':'วันที่',
+    'rep.form.desc':'รายละเอียด','rep.form.photo':'URL รูปภาพ (ไม่บังคับ)',
+    'rep.form.title':'คำขอซ่อมแซมใหม่','rep.current_status':'สถานะปัจจุบัน','rep.update_status':'อัปเดตสถานะ',
+    // ANNOUNCE
+    'ann.form.title':'ประกาศใหม่','ann.form.title.label':'หัวข้อ','ann.form.desc':'รายละเอียด',
+    'ann.form.dorm':'หอพักเป้าหมาย','ann.form.date':'วันที่',
+    'ann.list.title':'ประกาศทั้งหมด',
+    'ann.dorm.all':'ทุกหอพัก / All Dormitories',
+    'ann.empty':'ยังไม่มีประกาศ กรุณาสร้างที่ฝั่งซ้าย',
+    // STUDENTS
+    'stu.search':'ค้นหาชื่อ, ห้อง, รหัสนักศึกษา...',
+    'stu.form.add':'เพิ่มนักศึกษา','stu.form.edit':'แก้ไขข้อมูลนักศึกษา',
+    'stu.form.name':'ชื่อ-นามสกุล','stu.form.id':'รหัสนักศึกษา',
+    'stu.form.room':'หมายเลขห้อง','stu.form.email':'อีเมล',
+    'stu.form.dorm':'อาคารหอพัก','stu.form.dorm.placeholder':'— เลือกหอพัก —',
+    'stu.th.id':'รหัส','stu.th.name':'ชื่อ','stu.th.room':'ห้อง','stu.th.dorm':'หอพัก','stu.th.email':'อีเมล',
+    // AUDIT
+    'audit.search':'ค้นหา...','audit.filter.all':'กิจกรรมทั้งหมด',
+    // SETTINGS
+    'set.profile.title':'โปรไฟล์ผู้ดูแล','set.profile.click':'คลิกที่รูปเพื่อเปลี่ยนรูปโปรไฟล์',
+    'set.name':'ชื่อ-นามสกุล','set.email':'อีเมล','set.role':'ตำแหน่ง',
+    'set.pw.title':'เปลี่ยนรหัสผ่าน','set.pw.current':'รหัสผ่านปัจจุบัน',
+    'set.pw.new':'รหัสผ่านใหม่','set.pw.confirm':'ยืนยันรหัสผ่าน',
+    'set.lang.title':'ภาษา / Language','set.lang.sub':'เลือกภาษาที่ต้องการสำหรับระบบ',
+    'set.danger.title':'โซนอันตราย','set.danger.sub':'ออกจากระบบแดชบอร์ด',
+    // NOTIF
+    'notif.panel.title':'การแจ้งเตือน','notif.parcel':'พัสดุของคุณมาถึงแล้ว กรุณามารับที่สำนักงานหอพัก',
+    'notif.empty':'ไม่มีการแจ้งเตือน',
+    // CHARTS
+    'chart.parcels':'พัสดุ','chart.repairs':'ซ่อมแซม','chart.resolved':'เสร็จสิ้น',
+    'chart.recent.parcels':'พัสดุล่าสุด','chart.recent.repairs':'ซ่อมแซมล่าสุด',
+    'chart.weekly':'กิจกรรมรายสัปดาห์',
+    // MISC
+    'pickup.done':'รับแล้ว','scanned.today':'สแกนวันนี้','waiting':' รายการรอ',
+    'stu.dorm.all':'ทุกหอพัก','no.students':'ไม่พบนักศึกษา','no.repairs':'ไม่พบคำขอซ่อมแซม',
+    'no.audit':'ไม่พบกิจกรรม','no.parcels':'ยังไม่มีพัสดุ',
+    'confirm.delete.student':'ต้องการลบ {name} ({room}) ออกจากระบบ? ไม่สามารถกู้คืนได้',
+    'confirm.delete.repair':'ต้องการลบคำขอซ่อมแซม {id} ของ {name}? ไม่สามารถกู้คืนได้',
+    'confirm.delete.ann':'ต้องการลบ "{title}"? ไม่สามารถกู้คืนได้',
+    'confirm.clear.log':'ต้องการลบประวัติกิจกรรมทั้งหมด? ไม่สามารถกู้คืนได้',
+    'confirm.logout':'คุณต้องการออกจากระบบหรือไม่?',
+  }
+};
+
+function t(key){ return (T[lang] && T[lang][key]) || (T.en[key]) || key; }
+
+function setLang(l){
+  lang=l;
+  localStorage.setItem('mfu_lang',l);
+  document.getElementById('bEN').classList.toggle('on',l==='en');
+  document.getElementById('bTH').classList.toggle('on',l==='th');
+  applyTranslations();
+  // Re-render all dynamic content with new language
+  renderAll();
+  toast(l==='th'?'เปลี่ยนเป็นภาษาไทยแล้ว 🇹🇭':'Switched to English 🇬🇧','ok');
+}
+
+function applyTranslations(){
+  // Sidebar nav items
+  const navLabels=[
+    ['n-overview', t('nav.overview')],
+    ['n-scan', t('nav.scan')],
+    ['n-repairs', t('nav.repairs')],
+    ['n-announce', t('nav.announce')],
+    ['n-students', t('nav.students')],
+    ['n-audit', t('nav.audit')],
+    ['n-settings', t('nav.settings')],
+  ];
+  navLabels.forEach(([id,text])=>{
+    const el=document.getElementById(id);
+    if(el){const span=el.querySelector('span:not(.em):not(.nbadge)');if(span)span.textContent=text;}
+  });
+  // Page headers
+  const pageHeaders={
+    'overview':{h:'pg.overview.title',p:'pg.overview.sub'},
+    'scan':{h:'pg.scan.title',p:'pg.scan.sub'},
+    'repairs':{h:'pg.repairs.title',p:'pg.repairs.sub'},
+    'announce':{h:'pg.announce.title',p:'pg.announce.sub'},
+    'students':{h:'pg.students.title',p:'pg.students.sub'},
+    'audit':{h:'pg.audit.title',p:'pg.audit.sub'},
+    'settings':{h:'pg.settings.title',p:'pg.settings.sub'},
+  };
+  Object.entries(pageHeaders).forEach(([page,keys])=>{
+    const pg=document.getElementById('pg-'+page);
+    if(!pg)return;
+    const h=pg.querySelector('.pghead-t h2');
+    const p=pg.querySelector('.pghead-t p');
+    const icons={'overview':'','scan':'','repairs':'','announce':'','students':'','audit':'','settings':''};
+    if(h)h.textContent=t(keys.h);
+    if(p)p.textContent=t(keys.p);
+  });
+  // Buttons with data-i18n
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key=el.getAttribute('data-i18n');
+    el.textContent=t(key);
+  });
+  // Search placeholders
+  const stuSrch=document.getElementById('stuSrch');if(stuSrch)stuSrch.placeholder=t('stu.search');
+  const repSrch=document.getElementById('repSrch');if(repSrch)repSrch.placeholder=t('rep.search');
+  const auSrch=document.getElementById('auSrch');if(auSrch)auSrch.placeholder=t('audit.search');
+  // Filter selects
+  const repFil=document.getElementById('repFil');
+  if(repFil){
+    const opts=repFil.options;
+    if(opts[0])opts[0].textContent=t('rep.filter.all');
+    if(opts[1])opts[1].textContent=t('rep.status.pending');
+    if(opts[2])opts[2].textContent=t('rep.status.inprogress');
+    if(opts[3])opts[3].textContent=t('rep.status.completed');
+  }
+  const auFil=document.getElementById('auFil');
+  if(auFil&&auFil.options[0])auFil.options[0].textContent=t('audit.filter.all');
+  // Ann dorm all option
+  const annDorm=document.getElementById('annDorm');
+  if(annDorm&&annDorm.options[0])annDorm.options[0].textContent=t('ann.dorm.all');
+  // Student dorm filter all option
+  const stuDormFil=document.getElementById('stuDormFil');
+  if(stuDormFil&&stuDormFil.options[0])stuDormFil.options[0].textContent=lang==='th'?'ทุกหอพัก':'All Dormitories';
+  // Table headers via data-i18n already handled below
+  // Student dorm placeholder
+  const sDorm=document.getElementById('sDorm');
+  if(sDorm&&sDorm.options[0])sDorm.options[0].textContent=t('stu.form.dorm.placeholder');
+  // Settings labels
+  const profileTitle=document.querySelector('#pg-settings .fcard:first-child h3');
+  if(profileTitle)profileTitle.textContent=t('set.profile.title');
+  const clickHint=document.querySelector('#pg-settings .tsm');
+  if(clickHint)clickHint.textContent=t('set.profile.click');
+  // Logout button
+  const logoutBtn=document.querySelector('.aside-foot .nitem span:last-child');
+  if(logoutBtn)logoutBtn.textContent=t('nav.logout');
+  // Notification panel
+  const nph=document.querySelector('.nph h4');
+  if(nph)nph.textContent=t('notif.panel.title');
+  // Overview chart labels
+  const chPl=document.querySelector('#chP + .tsm');if(chPl)chPl.textContent=t('chart.parcels');
+  const chRl=document.querySelector('#chR + .tsm');if(chRl)chRl.textContent=t('chart.repairs');
+  const chDl=document.querySelector('#chD + .tsm');if(chDl)chDl.textContent=t('chart.resolved');
+  // Scan tabs
+  // scan tabs (only manual remains as text button)
+  const manualTab=document.getElementById('ct-manual');if(manualTab)manualTab.textContent='⌨️ '+t('scan.tab.manual');
+  // Scan step labels
+  const steps=document.querySelectorAll('.stepcard h4');
+  if(steps[0])steps[0].textContent=t('scan.step1');
+  if(steps[1])steps[1].textContent=t('scan.step2');
+  if(steps[2])steps[2].textContent=t('scan.step3');
+  // Scan cam hint
+  const camph=document.getElementById('camph');
+  if(camph){
+    const spans=camph.querySelectorAll('span');
+    if(spans[0])spans[0].textContent=t('scan.cam.hint');
+    if(spans[1])spans[1].textContent=t('scan.cam.req');
+  }
+  // Live error msg
+  const liveErr=document.getElementById('liveErrMsg');
+  if(liveErr)liveErr.textContent='❌ '+t('scan.cam.blocked');
+  // Scan carrier label
+  const carrierLabels=document.querySelectorAll('#pg-scan .stepcard:nth-child(2) label');
+  if(carrierLabels[0])carrierLabels[0].textContent=t('scan.room.label')+' *';
+  if(carrierLabels[1])carrierLabels[1].textContent=t('scan.carrier.label');
+  // Scan drop zone text
+  const dz=document.querySelector('#dropzone p strong');
+  if(dz)dz.textContent=lang==='th'?'คลิกหรือลากไฟล์มาวาง':'Click or drag & drop';
+  // Empty scan box
+  const prevEmpty=document.getElementById('prevEmpty');
+  if(prevEmpty){const p=prevEmpty.querySelector('p');if(p)p.textContent=t('scan.empty');}
+  // Announce form
+  const annFT=document.getElementById('annFormTitle');
+  if(annFT&&!document.getElementById('editAnnId')?.value)annFT.textContent=t('ann.form.title');
+  // Student form labels
+  const mStuT=document.getElementById('mStuTitle');
+  if(mStuT&&!document.getElementById('editStuId')?.value)mStuT.textContent=t('stu.form.add');
+  // Repair category options
+  const rCat=document.getElementById('rCat');
+  if(rCat){
+    const cats=[['rep.cat.electrical'],['rep.cat.plumbing'],['rep.cat.furniture'],['rep.cat.internet'],['rep.cat.ac'],['rep.cat.other']];
+    cats.forEach(([k],i)=>{if(rCat.options[i])rCat.options[i].textContent=t(k);});
+  }
+  // Settings page
+  const setLabels=[
+    ['set.pw.title','#pg-settings .fcard:nth-child(1) h3'],
+    ['set.lang.title','#pg-settings .g2 > div:nth-child(2) .fcard:nth-child(2) h3'],
+  ];
+  setLabels.forEach(([k,sel])=>{const el=document.querySelector(sel);if(el)el.textContent=t(k);});
+  const langDesc=document.querySelector('#pg-settings .g2 > div:nth-child(2) .fcard:nth-child(2) .tsm');
+  if(langDesc)langDesc.textContent=t('set.lang.sub');
+  const dangerTitle=document.querySelector('#pg-settings .fcard[style*="red"] h3');
+  if(dangerTitle)dangerTitle.textContent=t('set.danger.title');
+  const dangerDesc=document.querySelector('#pg-settings .fcard[style*="red"] .tsm');
+  if(dangerDesc)dangerDesc.textContent=t('set.danger.sub');
+}
+
+// ════════════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════════════
+function toast(msg,type='info'){
+  const c=document.getElementById('toastWrap');
+  const el=document.createElement('div');
+  el.className='toast '+(type==='ok'?'ok':type==='warn'?'warn':type==='err'?'err':'');
+  const ico={ok:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',warn:'⚠️',err:'❌',info:'ℹ️'};
+  el.innerHTML=`<span style="flex-shrink:0">${ico[type]||'ℹ️'}</span><span>${msg}</span>`;
+  c.appendChild(el);
+  setTimeout(()=>{el.style.animation='tout .3s ease forwards';setTimeout(()=>el.remove(),300);},4200);
+}
+
+// ════════════════════════════════════════════════════
+// MODAL
+// ════════════════════════════════════════════════════
+function openM(id){document.getElementById(id)?.classList.add('open');}
+function closeM(id){document.getElementById(id)?.classList.remove('open');}
+document.addEventListener('click',e=>{if(e.target.classList.contains('mbk'))e.target.classList.remove('open');});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    document.querySelectorAll('.mbk.open').forEach(m=>m.classList.remove('open'));
+    document.getElementById('cfDlg')?.classList.remove('open');
+  }
+});
+function openPhM(src,cap){
+  document.getElementById('mPhImg').src=src;
+  document.getElementById('mPhCap').textContent='Photo evidence – '+cap;
+  openM('mPhoto');
+}
+
+// ════════════════════════════════════════════════════
+// CONFIRM DIALOG
+// ════════════════════════════════════════════════════
+let cfCb=null;
+function cf(ico,title,msg,cb){
+  cfCb=cb;
+  document.getElementById('cfIco').textContent=ico;
+  document.getElementById('cfTitle').textContent=title;
+  document.getElementById('cfMsg').textContent=msg;
+  document.getElementById('cfDlg').classList.add('open');
+}
+function closeCf(ok){
+  document.getElementById('cfDlg').classList.remove('open');
+  if(ok&&cfCb)cfCb();
+  cfCb=null;
+}
+
+// ════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════
+// lang already initialized at top of translations section
+
+
+// ════════════════════════════════════════════════════
+// AI SMART SCAN — Claude Vision API
+// ════════════════════════════════════════════════════
+let aiResultData=null;
+
+function onDropAI(e){
+  e.preventDefault();
+  document.getElementById('aiDropzone').classList.remove('drag');
+  const f=e.dataTransfer?.files[0];
+  if(f)processAIFile(f);
+}
+function onImgUpAI(e){const f=e.target.files[0];if(f)processAIFile(f);}
+
+async function processAIFile(file){
+  if(!file.type.startsWith('image/')){toast('Please select an image file.','warn');return;}
+
+  // Show preview
+  const reader=new FileReader();
+  reader.onload=async ev=>{
+    const base64=ev.target.result;
+    const img=document.getElementById('imgPrevAI');
+    img.src=base64;img.style.display='block';
+
+    // Reset UI
+    document.getElementById('aiResults').style.display='none';
+    document.getElementById('aiError').style.display='none';
+    document.getElementById('aiThinking').style.display='flex';
+    document.getElementById('btnAI').disabled=true;
+    aiResultData=null;
+
+    const msgs=[
+      'กำลังวิเคราะห์รูปภาพ...',
+      'อ่าน tracking number...',
+      'ตรวจสอบบริษัทขนส่ง...',
+      'ค้นหาข้อมูลผู้รับ...'
+    ];
+    let mi=0;
+    const rotateMsg=setInterval(()=>{
+      document.getElementById('aiThinkingMsg').textContent=msgs[++mi%msgs.length];
+    },1200);
+
+    try{
+      // Strip data URL prefix, get pure base64 + mediaType
+      const mediaType=file.type||'image/jpeg';
+      const b64=base64.split(',')[1];
+
+      const prompt=`You are analyzing a parcel/package label photo for a Thai university dormitory system (Mae Fah Luang University).
+
+Extract the following information from the label image:
+1. tracking_number: The shipment tracking number (e.g. TH1234567890, EH123456789TH, FX99182736, numbers only like 7-digit Lazada/Shopee codes)
+2. carrier: The delivery company (Kerry Express, Flash Express, J&T Express, Thailand Post, Lazada Logistics, Shopee Express, Best Express, Ninja Van, DHL, FedEx, or other)
+3. room_number: Any room/unit number for the recipient (format like F3-304, A2-110, etc.) - look in the recipient/to address section
+4. recipient_name: Full name of the recipient (look in the "To:" or "ผู้รับ" section)
+5. confidence: your confidence for each field: "high", "medium", or "low"
+6. notes: Any important observations (image blurry, partial label, multiple labels visible, etc.)
+
+IMPORTANT: Return ONLY a JSON object, no markdown, no explanation:
+{"tracking_number":"...","tracking_confidence":"high|medium|low","carrier":"...","carrier_confidence":"high|medium|low","room_number":"...","room_confidence":"high|medium|low","recipient_name":"...","notes":"..."}
+
+If a field cannot be found, use null for its value.`;
+
+      const response=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          model:'claude-sonnet-4-20250514',
+          max_tokens:400,
+          messages:[{
+            role:'user',
+            content:[
+              {type:'image',source:{type:'base64',media_type:mediaType,data:b64}},
+              {type:'text',text:prompt}
+            ]
+          }]
+        })
+      });
+
+      clearInterval(rotateMsg);
+      document.getElementById('aiThinking').style.display='none';
+
+      if(!response.ok){
+        const err=await response.json().catch(()=>({}));
+        throw new Error(err.error?.message||'API error '+response.status);
+      }
+
+      const data=await response.json();
+      const raw=data.content.map(c=>c.text||'').join('');
+      // Strip possible markdown fences
+      const jsonStr=raw.replace(/```json|```/g,'').trim();
+      let parsed;
+      try{parsed=JSON.parse(jsonStr);}
+      catch(e){throw new Error('Could not parse AI response. Raw: '+raw.slice(0,120));}
+
+      aiResultData=parsed;
+      renderAIResults(parsed);
+
+    }catch(err){
+      clearInterval(rotateMsg);
+      document.getElementById('aiThinking').style.display='none';
+      document.getElementById('aiError').style.display='block';
+      document.getElementById('aiError').textContent='❌ '+err.message;
+      toast('❌ AI analysis failed','err');
+    }finally{
+      document.getElementById('btnAI').disabled=false;
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function confBadge(conf){
+  if(!conf)return'';
+  const map={high:'ai-conf-high',medium:'ai-conf-med',low:'ai-conf-low'};
+  const label={high:'High',medium:'Med',low:'Low'};
+  return`<span class="ai-confidence ${map[conf]||'ai-conf-low'}">${label[conf]||conf}</span>`;
+}
+
+function renderAIResults(d){
+  function setRow(rowId,valId,confId,val,conf){
+    const row=document.getElementById(rowId);
+    const valEl=document.getElementById(valId);
+    const confEl=document.getElementById(confId);
+    if(val){
+      valEl.textContent=val;
+      valEl.className='ai-field-val';
+      row.className='ai-field-row filled';
+    }else{
+      valEl.textContent='ไม่พบ';
+      valEl.className='ai-field-val empty';
+      row.className='ai-field-row';
+    }
+    if(confEl)confEl.outerHTML=confBadge(conf);
+  }
+  setRow('ai-row-tracking','ai-val-tracking','ai-conf-tracking',d.tracking_number,d.tracking_confidence);
+  setRow('ai-row-carrier','ai-val-carrier','ai-conf-carrier',d.carrier,d.carrier_confidence);
+  setRow('ai-row-room','ai-val-room','ai-conf-room',d.room_number,d.room_confidence);
+  const recEl=document.getElementById('ai-val-recipient');
+  const recRow=document.getElementById('ai-row-recipient');
+  if(d.recipient_name){recEl.textContent=d.recipient_name;recEl.className='ai-field-val';recRow.className='ai-field-row filled';}
+  else{recEl.textContent='ไม่พบ';recEl.className='ai-field-val empty';recRow.className='ai-field-row';}
+  const noteEl=document.getElementById('aiNote');
+  if(d.notes&&d.notes.trim()){noteEl.textContent='💡 '+d.notes;noteEl.style.display='block';}
+  else noteEl.style.display='none';
+  document.getElementById('aiResults').style.display='block';
+
+  const hasAny=d.tracking_number||d.carrier||d.room_number;
+  if(hasAny){
+    toast('🤖 AI พบข้อมูล'+(d.tracking_number?' | '+d.tracking_number:''),'ok');
+  }else{
+    toast('⚠️ AI ไม่พบข้อมูลในรูป ลองถ่ายใหม่ให้ชัดขึ้น','warn');
+  }
+}
+
+function applyAIResults(){
+  if(!aiResultData){toast('ยังไม่มีผลการวิเคราะห์','warn');return;}
+  const d=aiResultData;
+  let applied=[];
+
+  if(d.tracking_number){
+    setBarcode(d.tracking_number);
+    applied.push('tracking');
+  }
+  if(d.carrier){
+    const sel=document.getElementById('carrierSel');
+    const opts=[...sel.options];
+    const match=opts.find(o=>o.value.toLowerCase().includes(d.carrier.toLowerCase().split(' ')[0])||
+                             d.carrier.toLowerCase().includes(o.value.toLowerCase().split(' ')[0]));
+    if(match){sel.value=match.value;applied.push('carrier');}
+    else{
+      // Add as custom option if not found
+      const opt=document.createElement('option');
+      opt.value=d.carrier;opt.textContent=d.carrier;opt.selected=true;
+      sel.appendChild(opt);applied.push('carrier');
+    }
+  }
+  if(d.room_number){
+    document.getElementById('roomIn').value=d.room_number.toUpperCase();
+    onRoomIn();
+    applied.push('room');
+  }
+
+  toast('✅ กรอกข้อมูลอัตโนมัติแล้ว: '+applied.join(', '),'ok');
+  // Scroll to step 2
+  document.getElementById('roomIn').scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+// ════════════════════════════════════════════════════
+// OCR — Tesseract.js
+// ════════════════════════════════════════════════════
+let ocrWorker=null;
+
+async function getOCRWorker(){
+  if(ocrWorker)return ocrWorker;
+  toast('🔍 Loading OCR engine...','info');
+  try{
+    ocrWorker=await Tesseract.createWorker('eng+tha',1,{
+      logger:m=>{
+        if(m.status==='recognizing text'){
+          const pct=Math.round(m.progress*100);
+          const bar=document.getElementById('ocrBarFill');
+          if(bar)bar.style.width=pct+'%';
+        }
+      }
+    });
+    await ocrWorker.setParameters({
+      tessedit_char_whitelist:'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-',
+    });
+    toast('✅ OCR engine ready','ok');
+    return ocrWorker;
+  }catch(e){
+    ocrWorker=null;
+    toast('❌ Failed to load OCR engine','err');
+    throw e;
+  }
+}
+
+function extractTrackingNumbers(text){
+  // Common Thai courier tracking patterns
+  const patterns=[
+    /[A-Z]{2}\d{9}[A-Z]{2}/g,       // Universal Postal Union (EH123456789TH)
+    /TH\d{10,14}/g,                  // Thailand Post
+    /[A-Z]{2}\d{8,12}/g,            // Generic carrier (FX,KE,JT etc.)
+    /\b\d{12,18}\b/g,               // Pure numeric (Lazada, Shopee)
+    /[A-Z]{1,3}[-]?\d{10,18}/g,     // Mixed formats
+  ];
+  const found=new Set();
+  patterns.forEach(p=>{
+    const m=text.match(p);
+    if(m)m.forEach(x=>found.add(x.trim()));
+  });
+  return [...found];
+}
+
+function onDropOCR(e){
+  e.preventDefault();
+  document.getElementById('dropzoneOCR').classList.remove('drag');
+  const f=e.dataTransfer?.files[0];
+  if(f)processOCRFile(f);
+}
+function onImgUpOCR(e){const f=e.target.files[0];if(f)processOCRFile(f);}
+
+async function processOCRFile(file){
+  if(!file.type.startsWith('image/')){toast('Please select an image file.','warn');return;}
+  const reader=new FileReader();
+  reader.onload=async ev=>{
+    const img=document.getElementById('imgPrevOCR');
+    img.src=ev.target.result;img.style.display='block';
+    document.getElementById('ocrResult').style.display='none';
+    document.getElementById('ocrParsed').style.display='none';
+    document.getElementById('ocrHint').style.display='block';
+    document.getElementById('ocrBar').style.display='block';
+    document.getElementById('ocrBarFill').style.width='0%';
+    document.getElementById('btnOCR').disabled=true;
+    try{
+      const worker=await getOCRWorker();
+      const {data:{text}}=await worker.recognize(ev.target.result);
+      document.getElementById('ocrBar').style.display='none';
+      document.getElementById('ocrHint').style.display='none';
+      const clean=text.replace(/[^A-Za-z0-9\n\r\s\-]/g,' ').replace(/\s+/g,' ').trim();
+      document.getElementById('ocrResult').textContent=clean||'(no text detected)';
+      document.getElementById('ocrResult').style.display='block';
+      const tracking=extractTrackingNumbers(clean);
+      if(tracking.length>0){
+        const pd=document.getElementById('ocrParsed');
+        pd.style.display='block';
+        pd.innerHTML=tracking.map((t,i)=>`
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 11px;background:${i===0?'#d1fae5':'var(--g50)'};border-radius:8px;margin-bottom:5px;border:1px solid ${i===0?'#6ee7b7':'var(--g200)'}">
+            <span style="font-family:var(--fm);font-size:13px;font-weight:700;flex:1">${esc(t)}</span>
+            <button class="btn bp btn-xs" onclick="useOCRCode('${esc(t)}')">Use</button>
+          </div>`).join('');
+        toast('✅ Found '+tracking.length+' tracking number'+(tracking.length>1?'s':'')+'!','ok');
+        if(tracking.length===1)useOCRCode(tracking[0]);
+      }else{
+        document.getElementById('ocrParsed').style.display='block';
+        document.getElementById('ocrParsed').innerHTML='<div style="color:var(--g400);font-size:13px;padding:8px">⚠️ No tracking numbers detected. Check the raw text above and use Manual tab.</div>';
+        toast('⚠️ No tracking numbers found in image','warn');
+      }
+    }catch(e){
+      document.getElementById('ocrBar').style.display='none';
+      document.getElementById('ocrHint').style.display='none';
+      toast('❌ OCR failed: '+e.message,'err');
+    }finally{
+      document.getElementById('btnOCR').disabled=false;
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function useOCRCode(code){
+  setBarcode(code);
+  toast('📦 Tracking set: '+code,'ok');
+  // Auto-switch to step 2
+  document.getElementById('roomIn').focus();
+}
+
+// ════════════════════════════════════════════════════
+// SIDEBAR TOGGLE (mobile)
+// ════════════════════════════════════════════════════
+function toggleSidebar(){
+  const aside=document.querySelector('aside');
+  const overlay=document.getElementById('sidebarOverlay');
+  const isOpen=aside.classList.contains('open');
+  if(isOpen){closeSidebar();}else{
+    aside.classList.add('open');
+    overlay.classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+}
+function closeSidebar(){
+  document.querySelector('aside')?.classList.remove('open');
+  document.getElementById('sidebarOverlay')?.classList.remove('open');
+  document.body.style.overflow='';
+}
+// Close sidebar on nav item click (mobile)
+document.querySelectorAll('.nitem').forEach(el=>{
+  el.addEventListener('click',()=>{
+    closeSidebar();
+  });
+});
+
+document.addEventListener('DOMContentLoaded',function(){
+  // Restore language preference on login page load
+  const savedLang=localStorage.getItem('mfu_lang')||'en';
+  if(savedLang==='th'){
+    document.getElementById('bEN')?.classList.remove('on');
+    document.getElementById('bTH')?.classList.add('on');
+  }
+});
+</script>
+</body>
+</html>
