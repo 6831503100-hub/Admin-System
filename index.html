@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>MFU Dorm Connect — Admin System</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@600&family=Prompt&display=swap" rel="stylesheet">
 <style>
 :root{
   --navy:#0f1b2d;--navy2:#172235;--navy3:#1e3050;--navyb:#2a4060;
@@ -12,12 +12,16 @@
   --green:#10b981;--yellow:#f59e0b;--red:#ef4444;--orange:#f97316;
   --g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;--g300:#cbd5e1;
   --g400:#94a3b8;--g600:#475569;--g800:#1e293b;
-  --fh:'Syne',sans-serif;--fb:'IBM Plex Sans Thai',sans-serif;--fm:'IBM Plex Mono',monospace;
+  --fh:'Syne',sans-serif;--fb: 'Prompt', sans-serif;--fm:'IBM Plex Mono',monospace;
   --sw:0px;--hh:60px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--fb);background:var(--g50);color:var(--g800);min-height:100vh;overflow-x:hidden}
-
+body {
+  font-family: 'Prompt', sans-serif;
+}
+h1, h2, h3 {
+  font-family: 'Kanit', sans-serif;
+}
 /* LOGIN */
 #loginWrap{min-height:100vh;background:var(--navy);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
 #loginWrap::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 70% 50%,rgba(59,130,246,.14) 0%,transparent 70%),radial-gradient(ellipse 40% 60% at 10% 80%,rgba(6,182,212,.09) 0%,transparent 70%)}
