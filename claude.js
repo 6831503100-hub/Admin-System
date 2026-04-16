@@ -54,3 +54,31 @@ export default async function handler(req, res) {
     });
   }
 }
+function startListening() {
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    alert("Browser ไม่รองรับเสียง");
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = "th-TH";
+  recognition.start();
+
+  recognition.onresult = function (event) {
+    const text = event.results[0][0].transcript;
+    console.log("พูดว่า:", text);
+
+    // 👉 เอาไปใส่ input
+    const input = document.querySelector("#trackingInput");
+    if (input) {
+      input.value = text;
+    }
+  };
+
+  recognition.onerror = function (err) {
+    console.error(err);
+  };
+}
