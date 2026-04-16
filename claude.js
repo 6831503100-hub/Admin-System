@@ -82,3 +82,16 @@ function startListening() {
     console.error(err);
   };
 }
+function startListening() {
+  alert("Voice working 🎤");
+
+  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  recognition.lang = "th-TH";
+
+  recognition.onresult = function (event) {
+    const text = event.results[0][0].transcript;
+    document.getElementById("trackingInput").value = text;
+  };
+
+  recognition.start();
+}
