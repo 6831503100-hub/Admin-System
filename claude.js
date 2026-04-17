@@ -1,6 +1,5 @@
-// =========================
-// 🎤 Voice Input Function
-// =========================
+alert("JS โหลดแล้ว");
+
 function startListening() {
   alert("กำลังฟัง... 🎤");
 
@@ -8,7 +7,7 @@ function startListening() {
     window.SpeechRecognition || window.webkitSpeechRecognition;
 
   if (!SpeechRecognition) {
-    alert("❌ Browser ไม่รองรับ (ใช้ Chrome)");
+    alert("❌ Browser ไม่รองรับ");
     return;
   }
 
@@ -17,7 +16,6 @@ function startListening() {
 
   recognition.onresult = function (event) {
     const text = event.results[0][0].transcript;
-    console.log("พูดว่า:", text);
 
     const input = document.getElementById("trackingInput");
     if (input) {
@@ -27,18 +25,9 @@ function startListening() {
     }
   };
 
-  recognition.onerror = function (err) {
-    console.error("Voice error:", err);
-    alert("❌ error เสียง");
+  recognition.onerror = function (e) {
+    alert("❌ error: " + e.error);
   };
 
   recognition.start();
-}
-
-
-// =========================
-// 🔥 (OPTIONAL) Test Function
-// =========================
-function testClick() {
-  alert("ปุ่มทำงานแล้ว ✅");
 }
