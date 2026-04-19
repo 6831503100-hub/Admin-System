@@ -1,5 +1,3 @@
-alert("JS โหลดแล้ว");
-
 const voiceBtn = document.getElementById("voiceBtn");
 const trackingInput = document.getElementById("trackingInput");
 
@@ -64,10 +62,7 @@ async function startRecording() {
           throw new Error(data.error || "Transcription failed");
         }
 
-        // เอาข้อความที่ API ส่งกลับมาใส่ใน input
         trackingInput.value = data.text || "";
-
-        alert("✅ ถอดเสียงสำเร็จ");
       } catch (err) {
         console.error(err);
         alert("❌ " + err.message);
