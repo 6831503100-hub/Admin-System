@@ -1,33 +1,108 @@
 alert("JS โหลดแล้ว");
 
-function startListening() {
-  alert("กำลังฟัง... 🎤");
+const voiceBtn = document.getElementById("voiceBtn");
+const trackingInput = document.getElementById("trackingInput");
 
-  const SpeechRecognition =
-    window.SpeechRecognition || window.webkitSpeechRecognition;
+let mediaRecorder = null;
+let audioChunks = [];
+let stream = null;
+let isRecording = false;
 
-  if (!SpeechRecognition) {
-    alert("❌ Browser ไม่รองรับ");
+async function startRecording() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    alert("❌ Browser นี้ไม่รองรับการใช้ไมค์");
     return;
   }
 
-  const recognition = new SpeechRecognition();
-  recognition.lang = "th-TH";
+  if (!window.MediaRecorder) {
+    alert("❌ Browser นี้ไม่รองรับการอัดเสียง");
+    return;
+  }
 
-  recognition.onresult = function (event) {
-    const text = event.results[0][0].transcript;
+  if (!voiceBtn || !trackingInput) {
+    alert("❌ ไม่เจอ voiceBtn หรือ trackingInput");
+    return;
+  }
 
-    const input = document.getElementById("trackingInput");
-    if (input) {
-      input.value = text;
-    } else {
-      alert("❌ ไม่เจอ input");
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+    let mimeType = "";
+    if (MediaRecorder.isTypeSupported("audio/webm")) {
+      mimeType = "audio/webm";
     }
-  };
 
-  recognition.onerror = function (e) {
-    alert("❌ error: " + e.error);
-  };
+    mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
+    audioChunks = [];
 
-  recognition.start();
+    mediaRecorder.ondataavailable = (event) => {
+      if (event.data && event.data.size > 0) {
+        audioChunks.push(event.data);
+      }
+    };
+
+    mediaRecorder.onstop = async () => {
+      try {
+        const audioBlob = new Blob(audioChunks, {
+          type: mimeType || "audio/webm"
+        });
+
+        const formData = new FormData();
+        formData.append("audio", audioBlob, "recording.webm");
+
+        voiceBtn.disabled = true;
+        voiceBtn.textContent = "⏳ Transcribing...";
+
+        const res = await fetch("/api/transcribe", {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || "Transcription failed");
+        }
+
+        trackingInput.value = data.text || "";
+        alert("✅ ส่งเสียงไปที่ API สำเร็จ");
+      } catch (err) {
+        console.error(err);
+        alert("❌ " + err.message);
+      } finally {
+        voiceBtn.disabled = false;
+        voiceBtn.textContent = "🎤 Voice";
+      }
+    };
+
+    mediaRecorder.start();
+    isRecording = true;
+    voiceBtn.textContent = "⏹ Stop";
+  } catch (err) {
+    console.error(err);
+    alert("❌ ใช้ไมค์ไม่ได้: " + err.message);
+  }
+}
+
+function stopRecording() {
+  if (mediaRecorder && isRecording) {
+    mediaRecorder.stop();
+    isRecording = false;
+
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+    }
+  }
+}
+
+if (voiceBtn) {
+  voiceBtn.addEventListener("click", () => {
+    if (!isRecording) {
+      startRecording();
+    } else {
+      stopRecording();
+    }
+  });
+} else {
+  alert("❌ ไม่เจอปุ่ม #voiceBtn");
 }
