@@ -64,14 +64,17 @@ async function startRecording() {
           throw new Error(data.error || "Transcription failed");
         }
 
+        // เอาข้อความที่ API ส่งกลับมาใส่ใน input
         trackingInput.value = data.text || "";
-        alert("✅ ส่งเสียงไปที่ API สำเร็จ");
+
+        alert("✅ ถอดเสียงสำเร็จ");
       } catch (err) {
         console.error(err);
         alert("❌ " + err.message);
       } finally {
         voiceBtn.disabled = false;
         voiceBtn.textContent = "🎤 Voice";
+        audioChunks = [];
       }
     };
 
@@ -91,6 +94,7 @@ function stopRecording() {
 
     if (stream) {
       stream.getTracks().forEach((track) => track.stop());
+      stream = null;
     }
   }
 }
