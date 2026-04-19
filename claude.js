@@ -26,8 +26,17 @@ async function startRecording() {
     stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
     let mimeType = "";
+    let fileName = "recording.webm";
+
     if (MediaRecorder.isTypeSupported("audio/webm")) {
       mimeType = "audio/webm";
+      fileName = "recording.webm";
+    } else if (MediaRecorder.isTypeSupported("audio/mp4")) {
+      mimeType = "audio/mp4";
+      fileName = "recording.mp4";
+    } else if (MediaRecorder.isTypeSupported("audio/mpeg")) {
+      mimeType = "audio/mpeg";
+      fileName = "recording.mp3";
     }
 
     mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
@@ -46,7 +55,10 @@ async function startRecording() {
         });
 
         const formData = new FormData();
-        formData.append("audio", audioBlob, "recording.webm");
+        formData.append("file", audioBlob, fileName);
+        formData.append("model", "gpt-4o-mini-transcribe");
+        formData.append("language", "th");
+        formData.append("response_format", "json");
 
         voiceBtn.disabled = true;
         voiceBtn.textContent = "⏳ Transcribing...";
