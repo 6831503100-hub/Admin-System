@@ -8,9 +8,13 @@ let recognition = null;
 let isListening = false;
 
 if (!voiceBtn || !trackingInput) {
-  alert("❌ ไม่เจอ voiceBtn หรือ trackingInput");
+  console.log("voiceBtn หรือ trackingInput ไม่เจอ");
 } else if (!SpeechRecognition) {
-  alert("❌ Browser นี้ไม่รองรับ Voice Recognition");
+  // ไม่เด้ง error แค่ปิดปุ่มไว้
+  voiceBtn.disabled = true;
+  voiceBtn.textContent = "Voice not supported";
+  voiceBtn.style.opacity = "0.6";
+  voiceBtn.style.cursor = "not-allowed";
 } else {
   recognition = new SpeechRecognition();
   recognition.lang = "th-TH";
@@ -21,7 +25,6 @@ if (!voiceBtn || !trackingInput) {
   recognition.onstart = () => {
     isListening = true;
     voiceBtn.textContent = "⏹ Stop";
-    voiceBtn.disabled = false;
   };
 
   recognition.onresult = (event) => {
@@ -30,14 +33,14 @@ if (!voiceBtn || !trackingInput) {
   };
 
   recognition.onerror = (event) => {
-    console.error(event);
-    alert("❌ Error: " + event.error);
+    console.log("Voice error:", event.error);
+    isListening = false;
+    voiceBtn.textContent = "🎤 Voice";
   };
 
   recognition.onend = () => {
     isListening = false;
     voiceBtn.textContent = "🎤 Voice";
-    voiceBtn.disabled = false;
   };
 
   voiceBtn.addEventListener("click", () => {
