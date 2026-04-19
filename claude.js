@@ -1,31 +1,31 @@
 const voiceBtn = document.getElementById("voiceBtn");
 const trackingInput = document.getElementById("trackingInput");
 
-let recognition;
+const SpeechRecognition =
+  window.SpeechRecognition || window.webkitSpeechRecognition;
+
+let recognition = null;
 let isListening = false;
 
-// รองรับ browser
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-if (!SpeechRecognition) {
-  alert("❌ Browser นี้ไม่รองรับ Voice");
+if (!voiceBtn || !trackingInput) {
+  alert("❌ ไม่เจอ voiceBtn หรือ trackingInput");
+} else if (!SpeechRecognition) {
+  alert("❌ Browser นี้ไม่รองรับ Voice Recognition");
 } else {
   recognition = new SpeechRecognition();
-  recognition.lang = "th-TH"; // ภาษาไทย
+  recognition.lang = "th-TH";
   recognition.interimResults = false;
+  recognition.continuous = false;
+  recognition.maxAlternatives = 1;
 
   recognition.onstart = () => {
     isListening = true;
     voiceBtn.textContent = "⏹ Stop";
-  };
-
-  recognition.onend = () => {
-    isListening = false;
-    voiceBtn.textContent = "🎤 Voice";
+    voiceBtn.disabled = false;
   };
 
   recognition.onresult = (event) => {
-    const text = event.results[0][0].transcript;
+    const text = event.results[0][0].transcript || "";
     trackingInput.value = text;
   };
 
@@ -33,12 +33,14 @@ if (!SpeechRecognition) {
     console.error(event);
     alert("❌ Error: " + event.error);
   };
-}
 
-if (voiceBtn) {
+  recognition.onend = () => {
+    isListening = false;
+    voiceBtn.textContent = "🎤 Voice";
+    voiceBtn.disabled = false;
+  };
+
   voiceBtn.addEventListener("click", () => {
-    if (!recognition) return;
-
     if (!isListening) {
       recognition.start();
     } else {
