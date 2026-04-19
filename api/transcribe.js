@@ -8,18 +8,12 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { audio } = req.body;
-
-    if (!audio) {
-      return res.status(400).json({ error: "No audio provided" });
-    }
-
-    // 🔥 ตรงนี้คือ mock (ยังไม่ใช้ OpenAI จริง)
     return res.status(200).json({
-      text: "ทดสอบเสียงพูด (mock result)"
+      text: "ทดสอบเสียงพูด"
     });
-
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({
+      error: err.message || "Server error"
+    });
   }
 }
