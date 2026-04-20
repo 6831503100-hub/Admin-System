@@ -1,119 +1,52 @@
 const voiceBtn = document.getElementById("voiceBtn");
 const trackingInput = document.getElementById("trackingInput");
 
-let mediaRecorder = null;
-let audioChunks = [];
-let stream = null;
-let isRecording = false;
+const SpeechRecognition =
+  window.SpeechRecognition || window.webkitSpeechRecognition;
 
-async function startRecording() {
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    alert("❌ Browser นี้ไม่รองรับการใช้ไมค์");
-    return;
-  }
+let recognition = null;
+let isListening = false;
 
-  if (!window.MediaRecorder) {
-    alert("❌ Browser นี้ไม่รองรับการอัดเสียง");
-    return;
-  }
+if (!voiceBtn || !trackingInput) {
+  console.log("voiceBtn หรือ trackingInput ไม่เจอ");
+} else if (!SpeechRecognition) {
+  voiceBtn.disabled = true;
+  voiceBtn.textContent = "Voice not supported";
+  voiceBtn.style.opacity = "0.6";
+  voiceBtn.style.cursor = "not-allowed";
+} else {
+  recognition = new SpeechRecognition();
+  recognition.lang = "th-TH";
+  recognition.interimResults = false;
+  recognition.continuous = false;
+  recognition.maxAlternatives = 1;
 
-  if (!voiceBtn || !trackingInput) {
-    alert("❌ ไม่เจอ voiceBtn หรือ trackingInput");
-    return;
-  }
-
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
-    let mimeType = "";
-    let fileName = "recording.webm";
-
-    if (MediaRecorder.isTypeSupported("audio/webm")) {
-      mimeType = "audio/webm";
-      fileName = "recording.webm";
-    } else if (MediaRecorder.isTypeSupported("audio/mp4")) {
-      mimeType = "audio/mp4";
-      fileName = "recording.mp4";
-    } else if (MediaRecorder.isTypeSupported("audio/mpeg")) {
-      mimeType = "audio/mpeg";
-      fileName = "recording.mp3";
-    }
-
-    mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
-    audioChunks = [];
-
-    mediaRecorder.ondataavailable = (event) => {
-      if (event.data && event.data.size > 0) {
-        audioChunks.push(event.data);
-      }
-    };
-
-    mediaRecorder.onstop = async () => {
-      try {
-        const audioBlob = new Blob(audioChunks, {
-          type: mimeType || "audio/webm"
-        });
-
-        const formData = new FormData();
-        formData.append("file", audioBlob, fileName);
-        formData.append("model", "gpt-4o-mini-transcribe");
-        formData.append("language", "th");
-        formData.append("response_format", "json");
-
-        voiceBtn.disabled = true;
-        voiceBtn.textContent = "⏳ Transcribing...";
-
-        const res = await fetch("/api/transcribe", {
-          method: "POST",
-          body: formData
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.error || "Transcription failed");
-        }
-
-        trackingInput.value = data.text || "";
-      } catch (err) {
-        console.error(err);
-        alert("❌ " + err.message);
-      } finally {
-        voiceBtn.disabled = false;
-        voiceBtn.textContent = "🎤 Voice";
-        audioChunks = [];
-      }
-    };
-
-    mediaRecorder.start();
-    isRecording = true;
+  recognition.onstart = () => {
+    isListening = true;
     voiceBtn.textContent = "⏹ Stop";
-  } catch (err) {
-    console.error(err);
-    alert("❌ ใช้ไมค์ไม่ได้: " + err.message);
-  }
-}
+  };
 
-function stopRecording() {
-  if (mediaRecorder && isRecording) {
-    mediaRecorder.stop();
-    isRecording = false;
+  recognition.onresult = (event) => {
+    const text = event.results[0][0].transcript || "";
+    trackingInput.value = text;
+  };
 
-    if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
-      stream = null;
-    }
-  }
-}
+  recognition.onerror = (event) => {
+    console.log("Voice error:", event.error);
+    isListening = false;
+    voiceBtn.textContent = "🎤 Voice";
+  };
 
-if (voiceBtn) {
+  recognition.onend = () => {
+    isListening = false;
+    voiceBtn.textContent = "🎤 Voice";
+  };
+
   voiceBtn.addEventListener("click", () => {
-    if (!isRecording) {
-      startRecording();
+    if (!isListening) {
+      recognition.start();
     } else {
-      stopRecording();
+      recognition.stop();
     }
   });
-} else {
-  alert("❌ ไม่เจอปุ่ม #voiceBtn");
 }
