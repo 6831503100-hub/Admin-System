@@ -37,7 +37,6 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("OpenAI transcription error:", data);
       return res.status(response.status).json({
         error: data.error?.message || "Transcription failed"
       });
@@ -47,7 +46,6 @@ export default async function handler(req, res) {
       text: data.text || ""
     });
   } catch (err) {
-    console.error("Server error:", err);
     return res.status(500).json({
       error: err.message || "Server error"
     });
